@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'; // 라우터 import
 import App from './App.jsx';
 import './index.css';
+import SubmissionPage from './pages/SubmissionPage.jsx';
 
 // 임시로 만들 관리자 페이지 import (아래에서 생성할 예정)
 import AdminPage from './pages/AdminPage.jsx';
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       { 
         path: 'team-lookup',
         element: <TeamLookupPage />,
+      },
+      { 
+        path: 'submission', 
+        element: <SubmissionPage />,
       },
     ],
   },

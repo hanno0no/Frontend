@@ -107,6 +107,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
+  /* table-layout: fixed;  */
 }
 .result-table th,
 .result-table td {
