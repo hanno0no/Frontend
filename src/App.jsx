@@ -1,10 +1,12 @@
+// src/App.jsx
+import { Outlet } from 'react-router-dom'; // Outlet import
 import './App.css';
-import DashboardPage from './pages/DashboardPage'; // DashboardPage를 불러옵니다.
 
 function App() {
   return (
     <div className="App">
-      <DashboardPage /> {/* 페이지 컴포넌트를 보여줍니다. */}
+      {/* 이 자리에 router가 결정한 자식 컴포넌트(페이지)가 렌더링됩니다. */}
+      <Outlet />
     </div>
   );
 }

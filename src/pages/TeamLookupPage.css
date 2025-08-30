@@ -1,0 +1,145 @@
+/* src/pages/TeamLookupPage.css */
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden; /* 이 컨테이너 자체에서는 절대 스크롤이 생기지 않도록 합니다. */
+  background-color: var(--color-background);
+}
+
+
+.main-content-area {
+  flex-grow: 1; /* Header가 차지하고 남은 모든 공간을 차지합니다. */
+  overflow-y: auto; /* 내용이 많아지면 이 영역 안에서만 스크롤이 생깁니다. */
+  padding: 40px 20px; /* 위아래, 좌우 여백 */
+}
+
+.lookup-card {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-background);
+  border-radius: 8px;
+  padding: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+
+.page-title {
+  text-align: center;
+  font-size: 24px;
+  color: var(--color-black);
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.lookup-form {
+  max-width: 500px;
+  margin: 0 auto; /* 폼을 카드 안에서 중앙 정렬 */
+}
+
+/* ... (input-label, input-wrapper, lookup-input 등 폼 관련 스타일은 이전과 동일하게 사용) ... */
+.input-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+.lookup-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #DEE2E6;
+  border-radius: 4px;
+}
+.clear-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-background-hover);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.submit-button {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 40px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: var(--color-green);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 구분선 스타일 */
+.divider {
+  border: none;
+  border-top: 1px solid #E9ECEF;
+  margin: 40px 0;
+}
+
+.result-area {
+  min-height: 100px;
+}
+
+.error-message {
+  color: #d8000c;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* 테이블 스타일 (이전과 동일) */
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.result-table th,
+.result-table td {
+  border-bottom: 1px solid var(--color-light-gray); /* 가로선만 표시하여 깔끔하게 */
+  padding: 16px 8px; /* 패딩 조정 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+}
+.result-table th {
+  font-weight: bold;
+  color: var(--color-black);
+}
+
+
+
+.main-content-area::-webkit-scrollbar {
+  width: 9px; /* 스크롤바의 너비 */
+  height: 8px; /* 가로 스크롤바의 높이 (필요시) */
+}
+
+/* 스크롤바 막대(Thumb) 스타일 */
+.main-content-area::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1; /* 스크롤바 막대 색상 */
+  border-radius: 4px; /* 스크롤바 막대를 둥글게 */
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+.main-content-area::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-background-hover); /* 마우스를 올렸을 때 막대 색상 */
+}
+
+/* 스크롤바 트랙(Track) 스타일 */
+.main-content-area::-webkit-scrollbar-track {
+  background-color: var(--color-background); /* 스크롤바 배경 색상 */
+  border-radius: 4px;
+}
