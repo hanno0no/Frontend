@@ -30,7 +30,7 @@ function Header() {
                             </li>
                             <li>
                                 {/* Link 컴포넌트로 페이지를 이동합니다. 페이지 전체가 새로고침되지 않습니다. */}
-                                <Link to="/" onClick={() => setIsDropdownOpen(false)}>접수 신청</Link>
+                                <Link to="/submission" onClick={() => setIsDropdownOpen(false)}>접수 신청</Link>
                             </li>
                             <li>
                                 {/* Link 컴포넌트로 페이지를 이동합니다. 페이지 전체가 새로고침되지 않습니다. */}
