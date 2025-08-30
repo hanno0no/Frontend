@@ -1,13 +1,45 @@
 /* src/components/Header.css */
-.header-container {
-  background-color: var(--color-white);
-  padding: 16px 32px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+/* ... 기존 .header-container, h1 스타일 ... */
+
+.logo-section {
+  position: relative; /* 드롭다운 메뉴의 위치 기준점이 됩니다. */
+  margin-left: 20px;
 }
 
-.header-container h1 {
+.logo-title {
+  cursor: pointer; /* 마우스를 올렸을 때 손가락 모양으로 변경 */
+  user-select: none; /* 텍스트가 선택되지 않도록 설정 */
+  padding-left: 10px;
+}
+
+.dropdown-menu {
+  position: absolute; /* logo-section을 기준으로 위치를 잡습니다. */
+  top: 100%; /* 로고 바로 아래에 위치 */
+  left: 0;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-background);
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 8px 0;
+  min-width: 150px; /* 드롭다운 최소 너비 */
+  z-index: 100; /* 다른 요소들 위에 보이도록 설정 */
+}
+
+.dropdown-menu ul {
+  list-style: none;
   margin: 0;
-  font-size: 24px;
-  color: var(--color-black);
+  padding: 0;
+}
+
+.dropdown-menu ul li a {
+  display: block;
+  padding: 12px 24px;
+  color: var(--color-dark);
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.dropdown-menu ul li a:hover {
+  background-color: var(--color-background-hover);
 }
