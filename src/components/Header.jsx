@@ -37,7 +37,7 @@ function Header() {
                                 <Link to="/team-lookup" onClick={() => setIsDropdownOpen(false)}>팀별 조회</Link>
                             </li>
                             <li>
-                                <Link to="/admin" onClick={() => setIsDropdownOpen(false)}>LOGIN</Link>
+                                <Link to="/login" onClick={() => setIsDropdownOpen(false)}>LOGIN</Link>
                             </li>
                         </ul>
                     </nav>

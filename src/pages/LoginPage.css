@@ -1,0 +1,46 @@
+/* src/pages/LoginPage.css */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+}
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  background-color: var(--color-background);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.login-card h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+/* ... (form-group, input, button, error-message 스타일은 이전과 유사하게 추가) ... */
+
+.login-button {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 40px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: var(--color-green);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.login-title-link {
+  text-decoration: none; /* 링크의 밑줄 제거 */
+  color: inherit; /* 부모 요소의 글자색을 그대로 사용 (검은색) */
+  cursor: pointer; /* 마우스를 올렸을 때 클릭 가능하다는 것을 표시 */
+}
+
+.login-card h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
