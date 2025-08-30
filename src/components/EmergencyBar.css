@@ -1,0 +1,13 @@
+/* src/components/EmergencyBar.css */
+.emergency-bar {
+  background-color: var(--color-red); /* 강렬한 빨간색 */
+  color: var(--color-background);
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.emergency-bar p {
+  margin: 0;
+}
