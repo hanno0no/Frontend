@@ -1,4 +1,8 @@
 /* src/components/Clock.css */
+
+/* 디지털 시계 웹폰트 import */
+@import url('https://fonts.cdnfonts.com/css/ds-digital');
+
 .clock-wrapper {
   /* ✅ 핵심: 부모 요소의 남은 공간을 모두 차지함 */
   flex-grow: 1;
@@ -15,8 +19,9 @@
 }
 
 .clock-time {
-  font-size: 120px;
+  font-size: 240px;
   font-weight: bold;
   color: var(--color-background);
-  font-family: "Courier New", Courier, monospace;
+  /* ✅ 시계 글꼴을 DS-Digital로 변경 */
+  font-family: 'DS-Digital', sans-serif;
 }

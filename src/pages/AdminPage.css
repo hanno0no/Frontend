@@ -1,0 +1,115 @@
+/* src/pages/AdminPage.css */
+
+.admin-page-card {
+  background-color: var(--color-background);
+  border-radius: 8px;
+  padding: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.filter-container {
+  display: flex;
+  /* ✅ 자식 요소들을 세로 중앙에 정렬합니다. */
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-background-hover);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-weight: bold;
+  color: #495057;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid var(--color-background-hover);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* === ✅ 추가 및 수정된 부분 시작 === */
+
+/* 설정, 로그아웃 버튼을 감싸는 컨테이너 */
+.action-buttons {
+  /* flex container의 남은 공간을 모두 차지하여 오른쪽 끝으로 밀어냅니다. */
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 15px; /* 버튼 사이의 간격 */
+}
+
+/* 설정, 로그아웃 버튼 공통 스타일 */
+.admin-button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #495057; /* 필터 라벨과 동일한 색상 */
+  cursor: pointer;
+  text-decoration: none; /* Link 태그의 밑줄 제거 */
+  transition: color 0.2s ease-in-out; /* 부드러운 색상 변경 효과 */
+}
+
+/* 마우스를 올렸을 때 스타일 */
+.admin-button:hover {
+  color: var(--color-green); /* 전역 변수의 green 색상 사용 */
+}
+
+/* === ✅ 추가 및 수정된 부분 끝 === */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* 화면이 좁을 때 가로 스크롤 생성 */
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.order-table th,
+.order-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--color-background-hover);
+  text-align: left;
+  white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.order-table th {
+  background-color: var(--color-background-hover);
+  font-weight: bold;
+}
+
+.order-table tbody tr:hover {
+  background-color: var(--color-background-hover);
+}
+
+.order-table td[colSpan="6"] {
+  text-align: center;
+  padding: 50px;
+  color: var(--color-background-hover);
+}
+
+
+.table-select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--color-background);
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.table-select:focus {
+  outline: 2px solid var(--color-green);
+  border-color: transparent;
+}
