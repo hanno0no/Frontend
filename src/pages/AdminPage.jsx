@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react'; // useContext 추가
+import { Link, useNavigate } from 'react-router-dom'; // Link, useNavigate 추가
+import { AuthContext } from '../context/AuthContext';
+
 import apiClient from '../api/axios';
 import Header from '../components/Header';
 import './AdminPage.css';
@@ -22,10 +25,18 @@ function AdminPage() {
     // 필터 및 수정용 드롭다운 목록 State
     const [statusList, setStatusList] = useState([]);
     const [adminList, setAdminList] = useState([]);
-    
+
     // 필터 상태 관리
     const [statusFilter, setStatusFilter] = useState('all');
     const [adminFilter, setAdminFilter] = useState('all');
+
+    const { logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/'); // 로그아웃 후 로그인 페이지로 이동
+    };
 
     // 컴포넌트가 처음 렌더링될 때 모든 데이터를 불러옵니다.
     useEffect(() => {
@@ -79,18 +90,18 @@ function AdminPage() {
             admins: ['all', ...Array.from(admins)],
         };
     }, [allOrders]);
-    
+
     // 상태 업데이트 핸들러
     const handleStatusChange = async (orderId, newStatus) => {
         try {
             await apiClient.patch(`/admin/${orderId}/status`, { status: newStatus });
-            
+
             // API 성공 시, 화면의 데이터를 즉시 업데이트하여 새로고침 효과를 줍니다.
-            const updateOrders = (orders) => orders.map(order => 
+            const updateOrders = (orders) => orders.map(order =>
                 order.orderId === orderId ? { ...order, state: newStatus } : order
             );
             setAllOrders(prevOrders => updateOrders(prevOrders));
-            
+
         } catch (err) {
             console.error("상태 업데이트 실패:", err);
             alert("상태 업데이트에 실패했습니다.");
@@ -106,7 +117,7 @@ function AdminPage() {
             await apiClient.patch(`/admin/${orderId}/manager`, { manager: managerToSend });
 
             // API 성공 시, 화면의 데이터를 즉시 업데이트합니다.
-            const updateOrders = (orders) => orders.map(order => 
+            const updateOrders = (orders) => orders.map(order =>
                 order.orderId === orderId ? { ...order, admin: managerToSend } : order
             );
             setAllOrders(prevOrders => updateOrders(prevOrders));
@@ -145,6 +156,10 @@ function AdminPage() {
                                 </option>
                             ))}
                         </select>
+                    </div>
+                    <div className="action-buttons">
+                        <Link to="/admin/settings" className="admin-button">설정</Link>
+                        <button onClick={handleLogout} className="admin-button logout">로그아웃</button>
                     </div>
                 </div>
 

@@ -14,6 +14,7 @@ import DashboardPage from './pages/DashboardPage.jsx';
 import TeamLookupPage from './pages/TeamLookupPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import AdminSettingPage from './pages/AdminSettingsPage.jsx';
 
 
 // 라우터 경로 설정
@@ -47,6 +48,14 @@ const router = createBrowserRouter([
         // 로그인 페이지는 App 레이아웃(헤더 등) 바깥에 독립적으로 존재
         path: '/login',
         element: <LoginPage />,
+      },
+      {
+        path: 'admin/settings',
+        element: (
+          <ProtectedRoute>
+            <AdminSettingPage />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

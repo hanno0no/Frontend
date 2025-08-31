@@ -9,6 +9,8 @@
 
 .filter-container {
   display: flex;
+  /* ✅ 자식 요소들을 세로 중앙에 정렬합니다. */
+  align-items: center;
   gap: 30px;
   margin-bottom: 30px;
   padding-bottom: 20px;
@@ -32,6 +34,37 @@
   border-radius: 4px;
   font-size: 14px;
 }
+
+/* === ✅ 추가 및 수정된 부분 시작 === */
+
+/* 설정, 로그아웃 버튼을 감싸는 컨테이너 */
+.action-buttons {
+  /* flex container의 남은 공간을 모두 차지하여 오른쪽 끝으로 밀어냅니다. */
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 15px; /* 버튼 사이의 간격 */
+}
+
+/* 설정, 로그아웃 버튼 공통 스타일 */
+.admin-button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #495057; /* 필터 라벨과 동일한 색상 */
+  cursor: pointer;
+  text-decoration: none; /* Link 태그의 밑줄 제거 */
+  transition: color 0.2s ease-in-out; /* 부드러운 색상 변경 효과 */
+}
+
+/* 마우스를 올렸을 때 스타일 */
+.admin-button:hover {
+  color: var(--color-green); /* 전역 변수의 green 색상 사용 */
+}
+
+/* === ✅ 추가 및 수정된 부분 끝 === */
 
 .table-wrapper {
   width: 100%;
