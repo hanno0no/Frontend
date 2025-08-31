@@ -132,6 +132,28 @@ function AdminSettingsPage() {
         }
     };
 
+    const handleDeleteItem = async (category, id) => {
+        const itemMap = {
+            eventInfos: { name: '대회', endpoint: 'eventinfo', idField: 'eventId' },
+            messages: { name: '메시지', endpoint: 'message', idField: 'messageId' },
+            materials: { name: '재질', endpoint: 'material', idField: 'materialId' }
+        };
+
+        const itemDetails = itemMap[category];
+        if (!itemDetails) return;
+
+        if (window.confirm(`정말로 이 ${itemDetails.name} 항목을 삭제하시겠습니까?`)) {
+            try {
+                await apiClient.delete(`/admin/delete/${itemDetails.endpoint}/${id}`);
+                alert(`${itemDetails.name} 항목이 성공적으로 삭제되었습니다.`);
+                fetchSettings(); // 데이터를 다시 불러와서 UI를 업데이트합니다.
+            } catch (err) {
+                console.error(`${itemDetails.name} 삭제 에러:`, err);
+                alert(`${itemDetails.name} 삭제에 실패했습니다.`);
+            }
+        }
+    };
+
 
     const renderContent = () => {
         switch (activeTab) {
@@ -144,26 +166,31 @@ function AdminSettingsPage() {
                         </div>
                         {settings.eventInfos.map((event, index) => (
                             <div key={event.eventId} className="settings-item card-style">
-                                <div className="form-grid">
-                                    <div className="form-group full-width">
-                                        <label>대회 이름</label>
-                                        <input type="text" value={event.eventName} onChange={(e) => handleInputChange('eventInfos', index, 'eventName', e.target.value)} />
+                                <div className="item-content">
+                                    <div className="form-grid">
+                                        <div className="form-group full-width">
+                                            <label>대회 이름</label>
+                                            <input type="text" value={event.eventName} onChange={(e) => handleInputChange('eventInfos', index, 'eventName', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>시작 시간</label>
+                                            <input type="datetime-local" value={event.startTime ? event.startTime.substring(0, 16) : ''} onChange={(e) => handleInputChange('eventInfos', index, 'startTime', e.target.value + ':00')} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>종료 시간</label>
+                                            <input type="datetime-local" value={event.endTime ? event.endTime.substring(0, 16) : ''} onChange={(e) => handleInputChange('eventInfos', index, 'endTime', e.target.value + ':00')} />
+                                        </div>
+                                        <div className="form-group full-width">
+                                            <label>설명</label>
+                                            <textarea value={event.description} onChange={(e) => handleInputChange('eventInfos', index, 'description', e.target.value)} />
+                                        </div>
                                     </div>
-                                    <div className="form-group">
-                                        <label>시작 시간</label>
-                                        <input type="datetime-local" value={event.startTime ? event.startTime.substring(0, 16) : ''} onChange={(e) => handleInputChange('eventInfos', index, 'startTime', e.target.value + ':00')} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>종료 시간</label>
-                                        <input type="datetime-local" value={event.endTime ? event.endTime.substring(0, 16) : ''} onChange={(e) => handleInputChange('eventInfos', index, 'endTime', e.target.value + ':00')} />
-                                    </div>
-                                    <div className="form-group full-width">
-                                        <label>설명</label>
-                                        <textarea value={event.description} onChange={(e) => handleInputChange('eventInfos', index, 'description', e.target.value)} />
+                                    <div className="checkbox-group">
+                                        <label><input type="checkbox" checked={event.open} onChange={(e) => handleInputChange('eventInfos', index, 'open', e.target.checked)} /> 진행중</label>
                                     </div>
                                 </div>
-                                <div className="checkbox-group">
-                                    <label><input type="checkbox" checked={event.open} onChange={(e) => handleInputChange('eventInfos', index, 'open', e.target.checked)} /> 진행중</label>
+                                <div className="item-actions">
+                                    <button onClick={() => handleDeleteItem('eventInfos', event.eventId)} className="delete-button">삭제</button>
                                 </div>
                             </div>
                         ))}
@@ -178,15 +205,20 @@ function AdminSettingsPage() {
                         </div>
                         {settings.messages.map((message, index) => (
                             <div key={message.messageId} className="settings-item card-style">
-                                <div className="form-grid">
-                                    <div className="form-group full-width">
-                                        <label>내용</label>
-                                        <input type="text" value={message.content} onChange={(e) => handleInputChange('messages', index, 'content', e.target.value)} />
+                                <div className="item-content">
+                                    <div className="form-grid">
+                                        <div className="form-group full-width">
+                                            <label>내용</label>
+                                            <input type="text" value={message.content} onChange={(e) => handleInputChange('messages', index, 'content', e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="checkbox-group">
+                                        <label><input type="checkbox" checked={message.emergency} onChange={(e) => handleInputChange('messages', index, 'emergency', e.target.checked)} /> 긴급</label>
+                                        <label><input type="checkbox" checked={message.display} onChange={(e) => handleInputChange('messages', index, 'display', e.target.checked)} /> 표시</label>
                                     </div>
                                 </div>
-                                <div className="checkbox-group">
-                                    <label><input type="checkbox" checked={message.emergency} onChange={(e) => handleInputChange('messages', index, 'emergency', e.target.checked)} /> 긴급</label>
-                                    <label><input type="checkbox" checked={message.display} onChange={(e) => handleInputChange('messages', index, 'display', e.target.checked)} /> 표시</label>
+                                <div className="item-actions">
+                                    <button onClick={() => handleDeleteItem('messages', message.messageId)} className="delete-button">삭제</button>
                                 </div>
                             </div>
                         ))}
@@ -201,14 +233,19 @@ function AdminSettingsPage() {
                         </div>
                         {settings.materials.map((material, index) => (
                             <div key={material.materialId} className="settings-item card-style">
-                                <div className="form-grid">
-                                    <div className="form-group full-width">
-                                        <label>재질 이름</label>
-                                        <input type="text" value={material.materialName} onChange={(e) => handleInputChange('materials', index, 'materialName', e.target.value)} />
+                                <div className="item-content">
+                                    <div className="form-grid">
+                                        <div className="form-group full-width">
+                                            <label>재질 이름</label>
+                                            <input type="text" value={material.materialName} onChange={(e) => handleInputChange('materials', index, 'materialName', e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="checkbox-group">
+                                        <label><input type="checkbox" checked={material.active} onChange={(e) => handleInputChange('materials', index, 'active', e.target.checked)} /> 활성</label>
                                     </div>
                                 </div>
-                                <div className="checkbox-group">
-                                    <label><input type="checkbox" checked={material.active} onChange={(e) => handleInputChange('materials', index, 'active', e.target.checked)} /> 활성</label>
+                                <div className="item-actions">
+                                    <button onClick={() => handleDeleteItem('materials', material.materialId)} className="delete-button">삭제</button>
                                 </div>
                             </div>
                         ))}
