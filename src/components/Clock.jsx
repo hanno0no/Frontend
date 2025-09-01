@@ -6,8 +6,8 @@ import './Clock.css';
 const padZero = (num) => num.toString().padStart(2, '0');
 
 function Clock({ endTime }) {
-    // state의 기본 구조를 hours와 minutes로 변경합니다.
-    const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0 });
+    // ✅ 1. state에 seconds 추가
+    const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -17,14 +17,17 @@ function Clock({ endTime }) {
 
             if (difference > 0) {
                 const totalSeconds = Math.floor(difference / 1000);
-
-                // ✅ 계산 로직 변경: 시간과 분을 계산합니다.
+                
+                // ✅ 2. 초(seconds) 계산 로직 추가
                 const hours = Math.floor(totalSeconds / 3600);
                 const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
 
-                setTimeLeft({ hours, minutes });
+                // ✅ 3. state 업데이트 시 seconds 포함
+                setTimeLeft({ hours, minutes, seconds });
             } else {
-                setTimeLeft({ hours: 0, minutes: 0 });
+                // ✅ 4. 시간이 다 되었을 때도 seconds를 0으로 설정
+                setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
                 clearInterval(intervalId);
             }
         }, 1000);
@@ -35,8 +38,9 @@ function Clock({ endTime }) {
     return (
         <div className="clock-wrapper">
             <span className="clock-time">
-                {/* ✅ 표시되는 부분을 hours와 minutes로 변경합니다. */}
+                {/* ✅ 5. 렌더링 부분에 초를 표시하는 span 추가 */}
                 {padZero(timeLeft.hours)}:{padZero(timeLeft.minutes)}
+                <span className="clock-seconds">.{padZero(timeLeft.seconds)}</span>
             </span>
         </div>
     );

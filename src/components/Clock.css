@@ -25,3 +25,8 @@
   /* ✅ 시계 글꼴을 DS-Digital로 변경 */
   font-family: 'DS-Digital', sans-serif;
 }
+
+.clock-seconds {
+  font-size: 0.4em; /* 시간/분 폰트 크기의 40% 크기로 설정 */
+  /* vertical-align: top; 상단 정렬을 원할 경우 주석 해제 */
+}
