@@ -149,4 +149,6 @@ export const mockSettings = {
     { materialId: 3, materialName: 'PETG', active: true },
     { materialId: 4, materialName: 'TPU', active: false },
   ],
+  completedLimit: 9,
+  waitingLimit: 12,
 };

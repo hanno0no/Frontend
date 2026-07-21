@@ -104,6 +104,23 @@
     margin: 0;
 }
 
+.subsection-title {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.subsection-hint {
+    margin: 0 0 16px;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.dashboard-limits-card .form-group input[type="number"] {
+    max-width: 160px;
+}
+
 .add-button {
     background-color: var(--color-black);
     color: white;

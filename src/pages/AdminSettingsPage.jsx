@@ -11,7 +11,9 @@ function AdminSettingsPage() {
     const [settings, setSettings] = useState({
         eventInfos: [],
         messages: [],
-        materials: []
+        materials: [],
+        completedLimit: 9,
+        waitingLimit: 12,
     });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -19,7 +21,7 @@ function AdminSettingsPage() {
 
     // 모달 상태 관리
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-    const [isEventModalOpen, setIsEventModalOpen] = useState(false); // ✅ Event 모달 상태
+    const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [modalContext, setModalContext] = useState({ category: '', title: '' });
 
 
@@ -27,7 +29,14 @@ function AdminSettingsPage() {
         setIsLoading(true);
         try {
             const response = await apiClient.get('/admin/setting');
-            setSettings(response.data);
+            const data = response.data;
+            setSettings({
+                eventInfos: data.eventInfos || [],
+                messages: data.messages || [],
+                materials: data.materials || [],
+                completedLimit: data.completedLimit ?? 9,
+                waitingLimit: data.waitingLimit ?? 12,
+            });
         } catch (err) {
             console.error("설정 정보 조회 에러:", err);
             setError("설정 정보를 불러오는 데 실패했습니다.");
@@ -47,7 +56,27 @@ function AdminSettingsPage() {
         setSettings(newSettings);
     };
 
+    const handleDashboardLimitChange = (field, value) => {
+        const parsed = Number(value);
+        setSettings((prev) => ({
+            ...prev,
+            [field]: Number.isFinite(parsed) && parsed > 0 ? parsed : '',
+        }));
+    };
+
     const handleSaveChanges = async () => {
+        const completedLimit = Number(settings.completedLimit);
+        const waitingLimit = Number(settings.waitingLimit);
+
+        if (!Number.isInteger(completedLimit) || completedLimit < 1) {
+            alert('완료 명단 표시 개수는 1 이상의 정수여야 합니다.');
+            return;
+        }
+        if (!Number.isInteger(waitingLimit) || waitingLimit < 1) {
+            alert('대기 명단 표시 개수는 1 이상의 정수여야 합니다.');
+            return;
+        }
+
         try {
             const payload = {
                 eventInfoRequestDtos: settings.eventInfos.map(e => ({
@@ -68,7 +97,9 @@ function AdminSettingsPage() {
                     materialId: m.materialId,
                     materialName: m.materialName,
                     isActive: m.active
-                }))
+                })),
+                completedLimit,
+                waitingLimit,
             };
             await apiClient.patch('/admin/setting', payload);
             alert('설정이 성공적으로 저장되었습니다.');
@@ -164,6 +195,38 @@ function AdminSettingsPage() {
                             <h2>대회 정보</h2>
                             <button onClick={() => handleAddButtonClick('eventInfos')} className="add-button">추가</button>
                         </div>
+
+                        <div className="settings-item card-style dashboard-limits-card">
+                            <div className="item-content">
+                                <h3 className="subsection-title">대시보드 명단 표시 개수</h3>
+                                <p className="subsection-hint">메인 현황판에 표시할 완료·대기 명단 최대 건수입니다. (기본 완료 9 / 대기 12)</p>
+                                <div className="form-grid">
+                                    <div className="form-group">
+                                        <label htmlFor="completed-limit">완료 명단 개수</label>
+                                        <input
+                                            id="completed-limit"
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            value={settings.completedLimit}
+                                            onChange={(e) => handleDashboardLimitChange('completedLimit', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="waiting-limit">대기 명단 개수</label>
+                                        <input
+                                            id="waiting-limit"
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            value={settings.waitingLimit}
+                                            onChange={(e) => handleDashboardLimitChange('waitingLimit', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {settings.eventInfos.map((event, index) => (
                             <div key={event.eventId} className="settings-item card-style">
                                 <div className="item-content">

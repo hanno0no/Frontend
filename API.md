@@ -7,16 +7,37 @@
 >
 > **Base URL**: `/hnn`  
 > 프로덕션: `https://backend-production-2949.up.railway.app/hnn`  
-> Content-Type: `application/json` (SSE 제외)
+> Content-Type: `application/json` (SSE 제외)  
+> **프론트 스냅샷**: `hnn-react` (2026-07-21)
 
-본 문서는 **FE·BE 공통 계약(목표: v0.5)** 을 정의합니다.  
-현재 프론트 코드(`hnn-react`)는 아직 **v0.1** 경로·응답을 쓰는 구간이 있어, 각 API에 **현황**을 표시합니다.
+본 문서는 **FE·BE 공통 계약(v0.5)** 입니다.  
+엔드포인트마다 **프론트 구현 여부**를 표시합니다.
 
 | 표시 | 의미 |
 |------|------|
-| ✅ 목표 = 현재 | 이미 코드와 일치 |
-| 🔄 Phase N | 개발계획 Phase N에서 변경/추가 |
-| ⚠️ v0.1 잔존 | 현재 프론트가 구계약 사용 중 |
+| ✅ FE 반영 | 현재 프론트 코드가 이 계약을 사용 |
+| 🔄 미구현 | 명세(목표)만 있고 프론트 미구현 |
+| ⏳ BE 선행 | 프론트는 준비됐거나 반영됨 — 백엔드 배포 필요 |
+
+---
+
+## 프론트 구현 현황 (요약)
+
+| 구분 | 상태 |
+|------|------|
+| `/register` 경로 | ✅ |
+| 접수 JSON `{ orderId, message }` | ✅ (mock 포함). ⏳ 실제 BE JSON 필요 |
+| 상태 코드 6개 (`constants/status.js`) | ✅ (mock 포함). ⏳ BE DB 마이그레이션 필요 |
+| Admin 새로고침·필터(상태/담당자/재질/팀) | ✅ |
+| `VITE_USE_MOCK` | ✅ |
+| `VITE_API_BASE_URL` | 🔄 (Railway URL 하드코딩) |
+| 401 인터셉터 | 🔄 |
+| manager 미지정 `null` | 🔄 (현재 `""`) |
+| 페이지네이션·정렬·stats·material·hide | 🔄 |
+| setting `completedLimit` / `waitingLimit` | 🔄 |
+| SSE `/events` | 🔄 (대시보드 5초 폴링) |
+| `/admin/teams` | 🔄 |
+| Dashboard 새로고침 버튼 | 🔄 |
 
 ---
 
@@ -24,53 +45,54 @@
 
 ### 인증
 
-| 항목 | 내용 |
-|------|------|
-| 방식 | JWT Bearer |
-| 헤더 | `Authorization: Bearer {accessToken}` |
-| 발급 | `POST /admin/login` → `{ accessToken }` |
-| 저장 | `localStorage.accessToken` |
-| 만료 | 행사 운영 시간에 맞게 연장 (BE Phase 1, 예: 12h) |
-| 401 | HTTP 401 + JSON body → 프론트 인터셉터로 logout + `/login` (FE Phase 1) |
+| 항목 | 내용 | FE |
+|------|------|:--:|
+| 방식 | JWT Bearer | ✅ |
+| 헤더 | `Authorization: Bearer {accessToken}` | ✅ |
+| 발급 | `POST /admin/login` → `{ accessToken }` | ✅ |
+| 저장 | `localStorage.accessToken` | ✅ |
+| 만료 | 행사 운영 시간 반영 (예: 12h) | ⏳ BE |
+| 401 인터셉터 | logout + `/login` | 🔄 |
 
-**공개 API** (인증 불필요)
+**공개 API**
 
 - `GET /index`
 - `GET /checkStatus`
 - `POST /register`, `GET /register/getmaterial`
-- `GET /events` (SSE, Phase 4)
+- `GET /events` (🔄 Phase 4)
 
 **관리자 API** — `/admin/*` (login 제외) JWT 필요  
-`GET /register/getstate`, `GET /register/getadminname` 은 현재 공개이나, BE Phase 6에서 인증 필요로 옮길 수 있음.
+`GET /register/getstate`, `GET /register/getadminname` 은 현재 공개 호출. Phase 6에서 인증화 가능.
 
 ### 환경변수 (프론트)
 
-| 변수 | 설명 |
-|------|------|
-| `VITE_API_BASE_URL` | Axios `baseURL` (목표). 현재는 `axios.js`에 Railway URL 하드코딩 |
-| `VITE_USE_MOCK` | `true`면 mock adapter (디자인용) |
+| 변수 | 설명 | FE |
+|------|------|:--:|
+| `VITE_API_BASE_URL` | Axios `baseURL` | 🔄 하드코딩 |
+| `VITE_USE_MOCK` | `true`면 mock adapter | ✅ |
+
+하드코딩 값: `https://backend-production-2949.up.railway.app/hnn`
 
 ### 일시 형식
 
-ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`  
-예: `"2026-07-21T21:00:00"`
+ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 
-### 에러 응답 (목표, BE Phase 1)
+### 에러 응답 (목표)
 
 | HTTP | 용도 |
 |------|------|
-| 400 | 잘못된 요청 (`IllegalArgumentException` 등) |
+| 400 | 잘못된 요청 |
 | 401 | 인증 실패·토큰 만료 |
 | 403 | 권한 없음 |
-| 404 | 리소스 없음 (남용 금지) |
+| 404 | 리소스 없음 |
 
-본문 스키마는 백엔드 `GlobalExceptionHandler` 확정 후 보완.
+스키마는 BE `GlobalExceptionHandler` 확정 후 보완. 현재 FE는 상태 코드만으로 분기.
 
 ---
 
-## 주문 상태 코드
+## 주문 상태 코드 ✅ FE
 
-> 기획서 §5.3 / BE §4.4 / FE `constants/status.js` — **단일 진실 공급원**
+> 기획서 §5.3 / `src/constants/status.js` — 프론트 단일 정의
 
 ### 상태 정의
 
@@ -83,7 +105,7 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 | 5 | 수령 완료 | `picked_up` | 참가자 수령 (대시보드 미노출) |
 | — | 실패 | `failed` | 실패 · 재접수는 **새 주문** |
 
-### 허용 전이 (서버 검증, BE Phase 1)
+### 허용 전이 (서버 검증 ⏳ BE Phase 1)
 
 | from | → to |
 |------|------|
@@ -94,7 +116,7 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 | `print_complete` | `picked_up`, `failed` |
 | `picked_up` / `failed` | *(종료)* |
 
-### 대시보드 노출 (BE IndexService)
+### 대시보드 노출 (BE IndexService ⏳)
 
 | 상태 | 완료 명단 | 대기 명단 |
 |------|:--------:|:--------:|
@@ -105,8 +127,7 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 | `picked_up` | ❌ | ❌ |
 | `failed` | ❌ | ❌ |
 
-표시 형식(기획): `{팀번호}_{주문ID}`  
-건수: 설정값 (기본 완료 9 / 대기 12)
+표시 형식(기획): `{팀번호}_{주문ID}` · 건수 기본 9 / 12
 
 ### v0.1 → v0.5 마이그레이션
 
@@ -119,17 +140,16 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 | `rejection` | `failed` |
 | — | `picked_up` |
 
-⚠️ ~~프론트 `statusMap`·mock v0.1~~ → **`src/constants/status.js` + mock v0.5 반영 완료.**  
-백엔드 DB가 아직 구코드면 실제 API 모드에서 라벨이 코드 그대로 보일 수 있음.
+프론트·mock은 v0.5 완료. 실제 API는 BE `state` 테이블 마이그레이션 후 일치.
 
 ---
 
 ## 1. 대시보드
 
-### `GET /index` ✅ / 🔄 Phase 0·2 (필터·limit)
+### `GET /index` ✅ FE · ⏳ BE 필터/limit
 
 **사용처:** `DashboardPage`  
-**갱신:** 현재 5초 폴링 → 목표 SSE `index_updated` + 폴링 fallback (Phase 4)
+**갱신:** 5초 폴링 ✅ · SSE 🔄 · Dashboard 수동 새로고침 🔄
 
 **Response `200`**
 
@@ -145,70 +165,51 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| `completedTeam` | `string[]` | `print_complete` 주문, 최근순, limit 적용 |
-| `waitingTeam` | `string[]` | `accepted` + `design_complete`, 접수 오래된 순, limit 적용 |
+| `completedTeam` | `string[]` | `print_complete`, limit 적용 |
+| `waitingTeam` | `string[]` | `accepted` + `design_complete`, limit 적용 |
 | `endTime` | `string` | 활성 이벤트 종료 시각 |
 | `emergencyMessage` | `string[]` | 긴급 공지 |
 | `messages` | `string[]` | 일반 공지 |
 
-> `picked_up` / `submitted` / `failed` / 숨김 주문은 양쪽에 미포함.
+프론트는 배열을 그대로 표시. 필터·건수는 백엔드 책임.
 
 ---
 
 ## 2. 접수 · 공통 조회
 
-### `POST /register` 🔄 Phase 0
-
-| | v0.1 (현재 프론트) | v0.5 (목표) |
-|--|-------------------|-------------|
-| Path | `POST /registar` | `POST /register` ✅ 프론트 반영 |
-| Response | plain text 문자열 | JSON `{ orderId, message }` ✅ 프론트 반영 |
-
-**Request**
+### `POST /register` ✅ FE · ⏳ BE
 
 ```json
+// Request
 { "teamNum": "T2_1", "material": "PLA" }
-```
 
-**Response `200` (목표)**
-
-```json
-{
-  "orderId": 16,
-  "message": "접수가 완료되었습니다."
-}
+// Response 200
+{ "orderId": 16, "message": "접수가 완료되었습니다." }
 ```
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| `orderId` | `number` | 접수번호 |
+| `orderId` | `number` | 접수번호 — FE: `response.data.orderId` |
 | `message` | `string` | 안내 문구 |
 
 초기 상태: `submitted`  
 파일명: `{팀번호}_{주문ID}{A|M}` (기획 BR-03)
 
-⚠️ ~~프론트 문자열 파싱~~ → **프론트는 `response.data.orderId` 사용으로 전환 완료.**  
-백엔드가 아직 plain text면 깨집니다. BE Phase 0 JSON 배포와 맞출 것.
-
-**병행:** BE는 `/registar/**` → `/register/**` redirect 임시 지원 후 제거.
+레거시: BE는 `/registar/**` → `/register/**` redirect 임시 지원 가능.
 
 ---
 
-### `GET /register/getmaterial` 🔄 Phase 0 (경로만)
-
-활성 재질(`is_active=true`) 목록.
+### `GET /register/getmaterial` ✅ FE
 
 ```json
 ["PLA", "ABS", "PETG", "TPU"]
 ```
 
-⚠️ ~~현재: `GET /registar/getmaterial`~~ → 프론트 `/register/getmaterial` 반영 완료.
+활성 재질만 반환하는 것이 목표.
 
 ---
 
-### `GET /register/getstate` 🔄 Phase 0
-
-상태 코드 목록 (드롭다운).
+### `GET /register/getstate` ✅ FE
 
 ```json
 [
@@ -221,11 +222,11 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 ]
 ```
 
-⚠️ 상태 코드 목록·표시는 프론트 v0.5 반영 완료. 백엔드 `getstate`가 구코드를 주면 그대로 표시됨.
+Admin 드롭다운에 사용. FE 라벨은 `getStatusLabel()`.
 
 ---
 
-### `GET /register/getadminname` 🔄 Phase 0 / Phase 6(인증)
+### `GET /register/getadminname` ✅ FE
 
 ```json
 ["김한노", "이한노", "박한노"]
@@ -235,13 +236,10 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 
 ## 3. 팀 진행 현황
 
-### `GET /checkStatus` ✅ (상태 코드만 🔄)
+### `GET /checkStatus` ✅ FE
 
-**Query:** `teamNum` (필수)
-
+**Query:** `teamNum` (필수)  
 예: `GET /checkStatus?teamNum=T2_1`
-
-**Response `200`**
 
 ```json
 [
@@ -258,51 +256,35 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 |------|------|------|
 | `orderId` | `number` | 주문 ID |
 | `material` | `string` | 재질 |
-| `status` | `string` | 상태 코드 (**`state` 아님**) |
+| `status` | `string` | 상태 코드 (**목록의 `state`와 필드명 다름**) |
 | `orderTime` | `string` | 접수 시각 |
 
-기획서 요약에는 `teamNum` 포함 가능 — 백엔드 응답에 있으면 프론트는 무시해도 됨.
-
-**삭제:** `GET /checkStatus/view` (Thymeleaf) — BE Phase 0
+**삭제(BE):** `GET /checkStatus/view` (Thymeleaf)
 
 ---
 
 ## 4. 인증
 
-### `POST /admin/login` ✅
-
-**Request**
+### `POST /admin/login` ✅ FE
 
 ```json
+// Request
 { "username": "admin", "password": "password" }
-```
 
-**Response `200`**
-
-```json
+// Response 200
 { "accessToken": "eyJ..." }
 ```
 
-실패: **401** + JSON (목표). 현재 프론트는 상태코드만으로 오류 표시.
+실패 시 FE는 catch로 오류 메시지 표시. 401 JSON 바디·인터셉터는 🔄.
 
 ---
 
 ## 5. 관리자 — 주문
 
-### `GET /admin/view` 🔄 Phase 3 (페이지네이션·정렬)
+### `GET /admin/view` ✅ FE (배열) · 🔄 페이지네이션
 
-**인증:** 필요
-
-**Query (목표)**
-
-| 파라미터 | 타입 | 기본 | 설명 |
-|----------|------|------|------|
-| `page` | `number` | 0 | 페이지 번호 |
-| `size` | `number` | — | 페이지 크기 |
-| `sort` | `string` | — | `orderedAt`, `updatedAt`, `state`, `teamNum` 등 |
-| `direction` | `string` | — | `asc` \| `desc` |
-
-**Response `200` — v0.1 / Phase 0~2 (배열)**
+**인증:** 필요  
+**현재 FE:** 쿼리 없이 전체 배열 로드 + 클라이언트 필터 + 수동 새로고침
 
 ```json
 [
@@ -323,14 +305,21 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 | `teamNum` | `string` | 팀명 |
 | `material` | `string` | 재질 |
 | `fileName` | `string \| null` | 파일명 |
-| `admin` | `string \| null` | 담당자. 미지정은 `null` 또는 `""` |
+| `admin` | `string` | 담당자. FE 미지정 표시: falsy → `미지정` |
 | `state` | `string` | 상태 코드 |
 
-**Response (목표 Phase 3)** — Spring Page 형태 권장 (백엔드 확정 후 스키마 고정)
+**목표 Query (🔄 Phase 3)**
+
+| 파라미터 | 설명 |
+|----------|------|
+| `page`, `size` | 페이지네이션 |
+| `sort`, `direction` | 정렬 (`orderedAt`, `updatedAt`, `state`, `teamNum` …) |
+
+**목표 Response (🔄)** — Spring Page 권장
 
 ```json
 {
-  "content": [ /* Order 객체 */ ],
+  "content": [],
   "totalElements": 120,
   "totalPages": 12,
   "number": 0,
@@ -338,50 +327,31 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 }
 ```
 
-⚠️ 현재 프론트: 배열 전체 로드, 쿼리 파라미터 없음.
-
 ---
 
-### `PATCH /admin/{orderId}/status` ✅ / 🔄 Phase 1 (전이 검증)
-
-**Request**
+### `PATCH /admin/{orderId}/status` ✅ FE · ⏳ 전이 검증 BE
 
 ```json
 { "status": "design_complete" }
 ```
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| `status` | `string` | 새 상태 코드 |
-
-> 요청 필드명 `status` / 목록 응답 필드명 `state` — 불일치 유지(현행 계약).
-
-비허용 전이 → **400** (서버 검증).
+요청 필드 `status` / 목록 필드 `state` — 현행 유지.
 
 ---
 
-### `PATCH /admin/{orderId}/manager` 🔄 Phase 1
-
-**Request**
+### `PATCH /admin/{orderId}/manager` ✅ FE (부분) · 🔄 null
 
 ```json
 { "manager": "김한노" }
 ```
 
-미지정:
-
-```json
-{ "manager": null }
-```
-
-| | 현재 프론트 | 목표 (FE·BE Phase 1) |
-|--|------------|---------------------|
-| 미지정 전송 | `""` (빈 문자열) | `null` (또는 `"미지정"` BE 허용) |
-| DB | — | `admin_id` NULL |
+| | 현재 FE | 목표 |
+|--|---------|------|
+| 미지정 | `""` | `null` |
 
 ---
 
-### `PATCH /admin/{orderId}/material` 🔄 Phase 3 (신규)
+### `PATCH /admin/{orderId}/material` 🔄
 
 ```json
 { "material": "ABS" }
@@ -389,17 +359,13 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 
 ---
 
-### `PATCH /admin/{orderId}/hide` 🔄 Phase 2 (신규)
+### `PATCH /admin/{orderId}/hide` 🔄
 
-대시보드 완료 명단에서 숨김 (`hidden_from_dashboard = true`).
-
-Request body 없음 또는 `{ "hidden": true }` — 백엔드 구현 시 확정.
+완료 명단 숨김. body는 BE 구현 시 확정.
 
 ---
 
-### `GET /admin/stats` 🔄 Phase 3 (신규)
-
-상태별 주문 건수.
+### `GET /admin/stats` 🔄
 
 ```json
 {
@@ -416,9 +382,9 @@ Request body 없음 또는 `{ "hidden": true }` — 백엔드 구현 시 확정.
 
 ## 6. 관리자 — 설정
 
-### `GET /admin/setting` 🔄 Phase 2 (dashboard limit 필드)
+### `GET /admin/setting` ✅ FE · 🔄 limit 필드
 
-**Response `200`**
+현재 FE가 읽는 필드:
 
 ```json
 {
@@ -446,24 +412,22 @@ Request body 없음 또는 `{ "hidden": true }` — 백엔드 구현 시 확정.
       "materialName": "PLA",
       "active": true
     }
-  ],
-  "completedLimit": 9,
-  "waitingLimit": 12
+  ]
 }
 ```
 
-| 추가 필드 (Phase 2) | 타입 | 기본 | 설명 |
-|---------------------|------|------|------|
-| `completedLimit` | `number` | 9 | 완료 명단 표시 건수 |
-| `waitingLimit` | `number` | 12 | 대기 명단 표시 건수 |
+**목표 추가 (🔄 Phase 2)**
 
-> GET boolean: `open`, `display`, `emergency`, `active` (현재 프론트 계약)
+| 필드 | 기본 | 설명 |
+|------|------|------|
+| `completedLimit` | 9 | 완료 명단 건수 |
+| `waitingLimit` | 12 | 대기 명단 건수 |
+
+GET boolean: `open`, `display`, `emergency`, `active`
 
 ---
 
-### `PATCH /admin/setting` 🔄 Phase 2
-
-**Request**
+### `PATCH /admin/setting` ✅ FE · 🔄 limit
 
 ```json
 {
@@ -491,14 +455,12 @@ Request body 없음 또는 `{ "hidden": true }` — 백엔드 구현 시 확정.
       "materialName": "PLA",
       "isActive": true
     }
-  ],
-  "completedLimit": 9,
-  "waitingLimit": 12
+  ]
 }
 ```
 
-> PATCH boolean: `isOpen`, `isDisplay`, `isEmergency`, `isActive`  
-> GET과 접두사 불일치 — 현행 유지, 변경 시 FE·BE 동시.
+PATCH boolean: `isOpen`, `isDisplay`, `isEmergency`, `isActive`  
+목표: 동일 body에 `completedLimit`, `waitingLimit` 추가.
 
 ---
 
@@ -528,139 +490,91 @@ Request body 없음 또는 `{ "hidden": true }` — 백엔드 구현 시 확정.
 
 ### `DELETE /admin/delete/{type}/{id}` ✅
 
-| `type` | ID 필드 |
-|--------|---------|
+| `type` | ID |
+|--------|-----|
 | `eventinfo` | `eventId` |
 | `message` | `messageId` |
 | `material` | `materialId` |
 
-예: `DELETE /admin/delete/message/2`
-
 ---
 
-## 7. 실시간 (SSE)
+## 7. 실시간 (SSE) 🔄
 
-### `GET /events` 🔄 Phase 4 (신규)
+### `GET /events`
 
-- Content-Type: `text/event-stream`
-- 전체 경로: `/hnn/events`
+- `text/event-stream` · 경로 `/hnn/events`
 
-**이벤트 타입**
-
-| event | 프론트 동작 |
-|-------|------------|
-| `orders_updated` | AdminPage 주문 목록 refetch |
-| `index_updated` | DashboardPage refetch |
-| `settings_updated` | (선택) 설정/대시보드 갱신 |
-
-**예시**
+| event | 프론트 동작 (목표) |
+|-------|-------------------|
+| `orders_updated` | Admin 목록 refetch |
+| `index_updated` | Dashboard refetch |
+| `settings_updated` | (선택) 설정 갱신 |
 
 ```
 event: orders_updated
 data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
-
-event: index_updated
-data: {"type":"index_updated"}
 ```
 
-연결 실패 시 프론트는 5초 폴링 fallback. 수동 새로고침 버튼 유지.
+현재: Dashboard 5초 폴링 · Admin 수동 새로고침. SSE 없음.
 
 ---
 
-## 8. 팀 관리
-
-### `/admin/teams` 🔄 Phase 5 (신규)
+## 8. 팀 관리 🔄
 
 | Method | Path | 설명 |
 |--------|------|------|
-| GET | `/admin/teams` | 팀 목록 |
-| POST | `/admin/teams` | 팀 등록 |
-| PATCH | `/admin/teams/{teamNum}` | 팀 수정 |
-| DELETE | `/admin/teams/{teamNum}` | 팀 삭제 (주문 있으면 금지 또는 soft delete) |
-
-**팀 객체 (목표)**
+| GET | `/admin/teams` | 목록 |
+| POST | `/admin/teams` | 등록 |
+| PATCH | `/admin/teams/{teamNum}` | 수정 |
+| DELETE | `/admin/teams/{teamNum}` | 삭제 |
 
 ```json
-{
-  "teamNum": "T2_1",
-  "phone": "010-2222-2222"
-}
+{ "teamNum": "T2_1", "phone": "010-2222-2222" }
 ```
 
-| 필드 | 필수 | 설명 |
-|------|:----:|------|
-| `teamNum` | O | 팀 식별자 |
-| `phone` | | `010-0000-0000` 형식, nullable |
-
-정확한 path/body는 BE `TeamController` 구현 시 확정.
+path/DTO는 BE 구현 시 확정. FE 라우트·페이지 없음.
 
 ---
 
 ## 엔드포인트 요약
 
-### 유지 · 변경
+| Method | Path | FE | 비고 |
+|--------|------|:--:|------|
+| GET | `/index` | ✅ | 폴링. SSE·limit ⏳/🔄 |
+| GET | `/checkStatus` | ✅ | |
+| POST | `/register` | ✅ | JSON. ⏳ BE |
+| GET | `/register/getmaterial` | ✅ | |
+| GET | `/register/getstate` | ✅ | |
+| GET | `/register/getadminname` | ✅ | |
+| POST | `/admin/login` | ✅ | |
+| GET | `/admin/view` | ✅ | 배열. 페이지네이션 🔄 |
+| PATCH | `/admin/{id}/status` | ✅ | 전이 검증 ⏳ |
+| PATCH | `/admin/{id}/manager` | ✅ | 미지정 `""` → `null` 🔄 |
+| GET/PATCH | `/admin/setting` | ✅ | limit 🔄 |
+| POST | `/admin/create/*` | ✅ | |
+| DELETE | `/admin/delete/{type}/{id}` | ✅ | |
+| GET | `/events` | 🔄 | |
+| GET | `/admin/stats` | 🔄 | |
+| PATCH | `/admin/{id}/material` | 🔄 | |
+| PATCH | `/admin/{id}/hide` | 🔄 | |
+| * | `/admin/teams` | 🔄 | |
 
-| Method | Path (목표) | Phase | 비고 |
-|--------|-------------|:-----:|------|
-| GET | `/index` | 0, 2 | 필터·limit |
-| GET | `/checkStatus` | 0 | 상태 코드 |
-| POST | `/register` | 0 | ← `/registar`, JSON |
-| GET | `/register/getmaterial` | 0 | ← `/registar/...` |
-| GET | `/register/getstate` | 0 | 6개 코드 |
-| GET | `/register/getadminname` | 0 | Phase 6 인증화 가능 |
-| POST | `/admin/login` | — | |
-| GET | `/admin/view` | 3 | `?page&size&sort&direction` |
-| PATCH | `/admin/{id}/status` | 1 | 전이 검증 |
-| PATCH | `/admin/{id}/manager` | 1 | `null` 미지정 |
-| GET/PATCH | `/admin/setting` | 2 | limit 필드 |
-| POST | `/admin/create/*` | — | |
-| DELETE | `/admin/delete/{type}/{id}` | — | |
-
-### 신규
-
-| Method | Path | Phase |
-|--------|------|:-----:|
-| GET | `/events` | 4 |
-| GET | `/admin/stats` | 3 |
-| PATCH | `/admin/{id}/material` | 3 |
-| PATCH | `/admin/{id}/hide` | 2 |
-| * | `/admin/teams` | 5 |
-
-### 삭제
-
-| Method | Path | Phase |
-|--------|------|:-----:|
-| GET | `/checkStatus/view` | 0 |
+**삭제:** `GET /checkStatus/view`
 
 ---
 
-## 검토 결과 (개발계획 대비)
+## BE 확정 대기
 
-| # | 이슈 | 조치 |
-|---|------|------|
-| 1 | 명세가 v0.1 as-is만 기술 → 목표 계약과 혼선 | **목표(v0.5) 중심**으로 재작성, 현황 ⚠️ 표시 |
-| 2 | `/registar`·문자열 접수 응답이 “정본”처럼 보임 | `/register` + `{ orderId, message }`를 목표로 명시 |
-| 3 | 상태 예시에 v0.1 코드 잔존 (`print`, `register` 등) | v0.5 코드로 통일 |
-| 4 | 페이지네이션·stats·material·hide·SSE·teams 누락 | Phase별 신규 API 섹션 추가 |
-| 5 | setting의 `completedLimit` / `waitingLimit` 누락 | GET/PATCH에 반영 |
-| 6 | manager 미지정 `""` vs `null` | Phase 1 목표 `null`로 명시 |
-| 7 | 401·에러 코드 미기술 | 공통 섹션에 목표 추가 |
-| 8 | 대시보드 명단 형식·필터 규칙 불충분 | §5.3·IndexService 규칙 반영 |
-| 9 | `VITE_API_BASE_URL` 미언급 | 공통·환경변수 절 추가 |
-
-### 아직 백엔드 구현 시 확정할 항목
-
-1. `GET /admin/view` Page JSON 정확한 스키마  
-2. `PATCH .../hide` body 유무  
-3. `/admin/teams` REST path·DTO 세부  
+1. `GET /admin/view` Page JSON 스키마  
+2. `PATCH .../hide` body  
+3. `/admin/teams` path·DTO  
 4. 에러 응답 JSON 공통 스키마  
-5. `completedTeam` 문자열 형식이 실제 `{팀}_{주문ID}`인지 (기획은 이 형식)
+5. `completedTeam`이 `{팀}_{주문ID}`인지  
 
-### FE·BE 배포 순서 (개발계획)
+## 배포 순서
 
-1. BE Phase 0 (`/register` + redirect + 상태 코드 + Index 필터)  
-2. FE Phase 0 (경로·statusMap·JSON 접수)  
-3. 이후 Phase 단위 동시 배포
+1. BE Phase 0 (`/register` + JSON + 상태 코드 + Index 필터) — **FE 경로·상태·JSON은 선행 반영됨**  
+2. 이후 Phase 단위 동시 배포  
 
 ---
 
@@ -669,7 +583,6 @@ data: {"type":"index_updated"}
 | 버전 | 날짜 | 내용 |
 |------|------|------|
 | v0.1 | 2026-07-21 | 프론트 코드 역분석 |
-| v0.2 | 2026-07-21 | 기획서 §5.3 상태 코드 반영 |
-| v0.3 | 2026-07-21 | BE·FE 개발계획 대조 전면 재검토 |
-
-*협업 시 본 문서의 **목표 계약**을 우선하고, ⚠️ 현황은 마이그레이션 체크리스트로 사용합니다.*
+| v0.2 | 2026-07-21 | 기획서 §5.3 상태 코드 |
+| v0.3 | 2026-07-21 | BE·FE 개발계획 대조 |
+| v0.4 | 2026-07-21 | **현재 프론트 기준 전면 갱신** (경로·상태·접수 JSON 반영, 현황 표 정리) |

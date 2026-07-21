@@ -129,6 +129,13 @@ export async function handleMockRequest(config) {
   }
 
   if (method === 'patch' && path === '/admin/setting') {
+    const body = getBody(config);
+    if (body.completedLimit != null) {
+      store.settings.completedLimit = Number(body.completedLimit);
+    }
+    if (body.waitingLimit != null) {
+      store.settings.waitingLimit = Number(body.waitingLimit);
+    }
     return ok({ success: true });
   }
 
