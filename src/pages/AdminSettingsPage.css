@@ -78,14 +78,13 @@
     color: #555;
     font-weight: 500;
     border-radius: 6px;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .home-link:hover {
     background-color: #f0f2f5;
     color: #000;
 }
-
 
 .settings-content {
     flex-grow: 1;
@@ -239,30 +238,4 @@
 
 .save-button:hover {
     background-color: #218c74;
-}
-
-
-.action-buttons {
-  /* flex container의 남은 공간을 모두 차지하여 오른쪽 끝으로 밀어냅니다. */
-  /* margin-left: auto; */
-  display: flex;
-  /* align-items: left; */
-  float: left;
-}
-
-.admin-button {
-  background: none;
-  border: none;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #495057; /* 필터 라벨과 동일한 색상 */
-  cursor: pointer;
-  text-decoration: none; /* Link 태그의 밑줄 제거 */
-  transition: color 0.2s ease-in-out; /* 부드러운 색상 변경 효과 */
-  padding-right: 30px;
-}
-
-.admin-button:hover {
-  color: var(--color-green); /* 전역 변수의 green 색상 사용 */
 }

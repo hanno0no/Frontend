@@ -325,15 +325,17 @@ function AdminSettingsPage() {
     return (
         <div className="page-container">
             <Header />
-            <div className="action-buttons">
-                <Link to="/admin" className="admin-button">HOME</Link>
-            </div>
             <div className="main-content-area">
                 <div className="settings-page-layout">
                     <div className="settings-sidebar">
-                        <button onClick={() => setActiveTab('events')} className={activeTab === 'events' ? 'active' : ''}>대회 정보</button>
-                        <button onClick={() => setActiveTab('messages')} className={activeTab === 'messages' ? 'active' : ''}>공지 메시지</button>
-                        <button onClick={() => setActiveTab('materials')} className={activeTab === 'materials' ? 'active' : ''}>재질 관리</button>
+                        <div className="sidebar-menu">
+                            <button onClick={() => setActiveTab('events')} className={activeTab === 'events' ? 'active' : ''}>대회 정보</button>
+                            <button onClick={() => setActiveTab('messages')} className={activeTab === 'messages' ? 'active' : ''}>공지 메시지</button>
+                            <button onClick={() => setActiveTab('materials')} className={activeTab === 'materials' ? 'active' : ''}>재질 관리</button>
+                        </div>
+                        <div className="sidebar-footer">
+                            <Link to="/admin" className="home-link">HOME</Link>
+                        </div>
                     </div>
                     <div className="settings-content">
                         {renderContent()}
