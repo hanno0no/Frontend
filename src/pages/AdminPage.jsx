@@ -4,16 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 
 import apiClient from '../api/axios';
 import Header from '../components/Header';
+import { buildStatusOptions, getStatusLabel } from '../constants/status';
 import './AdminPage.css';
-
-// 상태(state) 값을 한글로 변환하기 위한 객체
-const statusMap = {
-    submission: '제출완료',
-    register: '접수완료',
-    design: '디자인완료',
-    print: '출력완료',
-    rejection: '실패',
-};
 
 function AdminPage() {
     // State 관리
@@ -112,7 +104,10 @@ function AdminPage() {
         };
 
         return {
-            statuses: withSelected(allOrders.map(order => order.state), statusFilter),
+            statuses: buildStatusOptions(
+                allOrders.map(order => order.state),
+                statusFilter
+            ),
             admins: withSelected(allOrders.map(order => order.admin || '미지정'), adminFilter),
             materials: withSelected(
                 allOrders.map(order => order.material).filter(Boolean),
@@ -174,7 +169,7 @@ function AdminPage() {
                             <select id="status-filter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
                                 {filterOptions.statuses.map(status => (
                                     <option key={status} value={status}>
-                                        {status === 'all' ? '전체' : (statusMap[status] || status)}
+                                        {status === 'all' ? '전체' : getStatusLabel(status)}
                                     </option>
                                 ))}
                             </select>
@@ -265,7 +260,7 @@ function AdminPage() {
                                             >
                                                 {statusList.map(statusValue => (
                                                     <option key={statusValue} value={statusValue}>
-                                                        {statusMap[statusValue] || statusValue}
+                                                        {getStatusLabel(statusValue)}
                                                     </option>
                                                 ))}
                                             </select>

@@ -18,33 +18,33 @@ export const mockOrders = [
     orderId: 101,
     teamNum: 'T2_1',
     material: 'PLA',
-    fileName: 'T2_1_PLA.stl',
+    fileName: 'T2_1_101A',
     admin: '김한노',
-    state: 'register',
+    state: 'accepted',
   },
   {
     orderId: 102,
     teamNum: 'T3_4',
     material: 'ABS',
-    fileName: 'T3_4_ABS.stl',
+    fileName: 'T3_4_102A',
     admin: '',
-    state: 'submission',
+    state: 'submitted',
   },
   {
     orderId: 103,
     teamNum: 'T5_2',
     material: 'PETG',
-    fileName: 'T5_2_PETG.stl',
+    fileName: 'T5_2_103M',
     admin: '이한노',
-    state: 'design',
+    state: 'design_complete',
   },
   {
     orderId: 104,
     teamNum: 'T1_1',
     material: 'PLA',
-    fileName: 'T1_1_PLA.stl',
+    fileName: 'T1_1_104A',
     admin: '김한노',
-    state: 'print',
+    state: 'print_complete',
   },
   {
     orderId: 105,
@@ -52,16 +52,25 @@ export const mockOrders = [
     material: 'TPU',
     fileName: null,
     admin: '',
-    state: 'rejection',
+    state: 'failed',
+  },
+  {
+    orderId: 106,
+    teamNum: 'T4_2',
+    material: 'PLA',
+    fileName: 'T4_2_106A',
+    admin: '박한노',
+    state: 'picked_up',
   },
 ];
 
 export const mockStatusList = [
-  'submission',
-  'register',
-  'design',
-  'print',
-  'rejection',
+  'submitted',
+  'accepted',
+  'design_complete',
+  'print_complete',
+  'picked_up',
+  'failed',
 ];
 
 export const mockAdminList = ['김한노', '이한노', '박한노'];
@@ -72,20 +81,26 @@ export const mockTeamStatus = [
   {
     orderId: 201,
     material: 'PLA',
-    status: 'print',
+    status: 'print_complete',
     orderTime: '2026-07-21T14:30:00',
   },
   {
     orderId: 202,
     material: 'ABS',
-    status: 'design',
+    status: 'design_complete',
     orderTime: '2026-07-21T15:10:00',
   },
   {
     orderId: 203,
     material: 'PETG',
-    status: 'register',
+    status: 'accepted',
     orderTime: '2026-07-21T16:05:00',
+  },
+  {
+    orderId: 204,
+    material: 'PLA',
+    status: 'picked_up',
+    orderTime: '2026-07-21T13:00:00',
   },
 ];
 

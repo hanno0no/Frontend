@@ -119,7 +119,8 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 | `rejection` | `failed` |
 | — | `picked_up` |
 
-⚠️ **현황:** 프론트 `statusMap`·mock은 아직 v0.1 코드. FE Phase 0에서 `STATUS_LABELS`로 교체.
+⚠️ ~~프론트 `statusMap`·mock v0.1~~ → **`src/constants/status.js` + mock v0.5 반영 완료.**  
+백엔드 DB가 아직 구코드면 실제 API 모드에서 라벨이 코드 그대로 보일 수 있음.
 
 ---
 
@@ -220,7 +221,7 @@ ISO-8601: `YYYY-MM-DDTHH:mm:ss` 또는 `...Z`
 ]
 ```
 
-⚠️ 상태 코드 목록은 아직 v0.1 5개일 수 있음 (프론트 `statusMap` 미교체). 경로는 `/register/getstate` 반영 완료.
+⚠️ 상태 코드 목록·표시는 프론트 v0.5 반영 완료. 백엔드 `getstate`가 구코드를 주면 그대로 표시됨.
 
 ---
 

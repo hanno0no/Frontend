@@ -1,25 +1,16 @@
 // src/pages/TeamLookupPage.jsx
 import React, { useState } from 'react';
 import apiClient from '../api/axios';
-import { Link } from 'react-router-dom';
-import './TeamLookupPage.css'; // 페이지 전용 CSS
+import './TeamLookupPage.css';
 
 import Header from '../components/Header';
+import { getStatusLabel } from '../constants/status';
 
 function TeamLookupPage() {
-    const [teamName, setTeamName] = useState('');      // 검색어 state
-    const [teamData, setTeamData] = useState(null);    // API 응답 결과 state
-    const [isLoading, setIsLoading] = useState(false); // 로딩 상태 state
-    const [error, setError] = useState(null);          // 에러 state
-
-    const statusMap = {
-        submission: '제출 완료',
-        register: '접수 완료',
-        design: '디자인 완료',
-        print: '출력 완료',
-        // 필요에 따라 다른 상태들을 추가할 수 있습니다.
-        rejection: '실패',
-    };
+    const [teamName, setTeamName] = useState('');
+    const [teamData, setTeamData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     // 검색 버튼 클릭 또는 Enter 키를 눌렀을 때 실행될 함수
     const handleSearch = async (e) => {
@@ -97,7 +88,7 @@ function TeamLookupPage() {
                                         <tr key={order.orderId}>
                                             <td>{index + 1}</td>
                                             <td>{order.material}</td>
-                                            <td>{statusMap[order.status] || order.status}</td>
+                                            <td>{getStatusLabel(order.status)}</td>
                                             <td>{new Date(order.orderTime).toLocaleString('ko-KR')}</td>
                                         </tr>
                                     ))}
