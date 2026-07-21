@@ -72,11 +72,11 @@ export async function handleMockRequest(config) {
     return ok(store.orders);
   }
 
-  if (method === 'get' && path === '/registar/getstate') {
+  if (method === 'get' && path === '/register/getstate') {
     return ok(mockStatusList);
   }
 
-  if (method === 'get' && path === '/registar/getadminname') {
+  if (method === 'get' && path === '/register/getadminname') {
     return ok(mockAdminList);
   }
 
@@ -101,13 +101,16 @@ export async function handleMockRequest(config) {
   }
 
   // --- Submission ---
-  if (method === 'get' && path === '/registar/getmaterial') {
+  if (method === 'get' && path === '/register/getmaterial') {
     return ok(mockMaterials);
   }
 
-  if (method === 'post' && path === '/registar') {
+  if (method === 'post' && path === '/register') {
     const id = store.nextOrderId++;
-    return ok(`접수가 완료되었습니다. 접수번호: ${id}`);
+    return ok({
+      orderId: id,
+      message: '접수가 완료되었습니다.',
+    });
   }
 
   // --- Team lookup ---

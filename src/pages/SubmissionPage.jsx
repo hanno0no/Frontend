@@ -25,7 +25,7 @@ function SubmissionPage() {
         const fetchMaterials = async () => {
             try {
                 // API 명세서에 명시된 재질 목록 GET 엔드포인트
-                const response = await apiClient.get('/registar/getmaterial');
+                const response = await apiClient.get('/register/getmaterial');
                 const materials = response.data;
 
                 setMaterialOptions(materials);
@@ -60,26 +60,12 @@ function SubmissionPage() {
 
         try {
             const payload = { teamNum, material };
-            const response = await apiClient.post('/registar', payload);
+            const response = await apiClient.post('/register', payload);
+            const { orderId } = response.data;
 
-            console.log('서버 응답:', response.data); // "접수가 완료되었습니다. 접수번호: 16"
-
-            // ✅ 핵심: 문자열에서 접수 번호만 추출하는 로직
-            const responseString = response.data;
-            const parts = responseString.split(':'); // ':' 문자를 기준으로 문자열을 ["...", " 16"] 배열로 나눔
-
-            // ':' 뒷부분이 존재하는지 확인 (안전장치)
-            if (parts.length > 1) {
-                const orderId = parts[1].trim(); // 두 번째 부분(" 16")의 양쪽 공백을 제거하여 "16"만 남김
-                setCompletedOrderId(orderId); // 추출한 번호를 state에 저장
-            } else {
-                // 혹시 모를 예외 상황 처리 (예: 응답 형식이 바뀐 경우)
-                setCompletedOrderId('확인불가');
-            }
-
-            setIsModalOpen(true); // 모달 띄우기
-            setTeamNum(''); // 성공 후 폼 초기화
-
+            setCompletedOrderId(orderId ?? '확인불가');
+            setIsModalOpen(true);
+            setTeamNum('');
         } catch (err) {
             console.error('접수 에러:', err);
             setErrorMessage('주문 접수에 실패했습니다. 다시 시도해주세요.');

@@ -51,8 +51,8 @@ function AdminPage() {
         try {
             const [ordersRes, statusRes, adminRes] = await Promise.all([
                 apiClient.get('/admin/view'),
-                apiClient.get('/registar/getstate'),
-                apiClient.get('/registar/getadminname')
+                apiClient.get('/register/getstate'),
+                apiClient.get('/register/getadminname')
             ]);
 
             // allOrders만 갱신 → 필터 state는 건드리지 않음
