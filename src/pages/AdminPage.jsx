@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react'; // useContext 추가
-import { Link, useNavigate } from 'react-router-dom'; // Link, useNavigate 추가
+import React, { useState, useEffect, useMemo, useContext, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 import apiClient from '../api/axios';
@@ -20,52 +20,68 @@ function AdminPage() {
     const [allOrders, setAllOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState(null);
 
     // 필터 및 수정용 드롭다운 목록 State
     const [statusList, setStatusList] = useState([]);
     const [adminList, setAdminList] = useState([]);
 
-    // 필터 상태 관리
+    // 필터 상태 관리 (새로고침 시에도 유지)
     const [statusFilter, setStatusFilter] = useState('all');
     const [adminFilter, setAdminFilter] = useState('all');
+    const [materialFilter, setMaterialFilter] = useState('all');
+    const [teamFilter, setTeamFilter] = useState('all');
 
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
-        navigate('/'); // 로그아웃 후 로그인 페이지로 이동
+        navigate('/');
     };
 
-    // 컴포넌트가 처음 렌더링될 때 모든 데이터를 불러옵니다.
-    useEffect(() => {
-        const fetchData = async () => {
+    const fetchData = useCallback(async ({ soft = false } = {}) => {
+        if (soft) {
+            setIsRefreshing(true);
+        } else {
             setIsLoading(true);
-            try {
-                // Promise.all을 사용해 여러 API를 동시에 호출합니다.
-                const [ordersRes, statusRes, adminRes] = await Promise.all([
-                    apiClient.get('/admin/view'),
-                    apiClient.get('/registar/getstate'),
-                    apiClient.get('/registar/getadminname')
-                ]);
+        }
 
-                setAllOrders(ordersRes.data);
-                setFilteredOrders(ordersRes.data);
-                setStatusList(statusRes.data);
-                setAdminList(adminRes.data);
+        try {
+            const [ordersRes, statusRes, adminRes] = await Promise.all([
+                apiClient.get('/admin/view'),
+                apiClient.get('/registar/getstate'),
+                apiClient.get('/registar/getadminname')
+            ]);
 
-            } catch (err) {
-                console.error("데이터 조회 에러:", err);
-                setError("데이터를 불러오는 데 실패했습니다.");
-            } finally {
+            // allOrders만 갱신 → 필터 state는 건드리지 않음
+            // filteredOrders는 아래 필터링 useEffect가 자동 재적용
+            setAllOrders(ordersRes.data);
+            setStatusList(statusRes.data);
+            setAdminList(adminRes.data);
+            setError(null);
+        } catch (err) {
+            console.error("데이터 조회 에러:", err);
+            setError("데이터를 불러오는 데 실패했습니다.");
+        } finally {
+            if (soft) {
+                setIsRefreshing(false);
+            } else {
                 setIsLoading(false);
             }
-        };
-        fetchData();
+        }
     }, []);
 
-    // 필터링 로직 (기존과 동일)
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const handleRefresh = () => {
+        fetchData({ soft: true });
+    };
+
+    // 필터링 로직
     useEffect(() => {
         let result = allOrders;
         if (statusFilter !== 'all') {
@@ -78,25 +94,42 @@ function AdminPage() {
                 result = result.filter(order => order.admin === adminFilter);
             }
         }
+        if (materialFilter !== 'all') {
+            result = result.filter(order => order.material === materialFilter);
+        }
+        if (teamFilter !== 'all') {
+            result = result.filter(order => order.teamNum === teamFilter);
+        }
         setFilteredOrders(result);
-    }, [statusFilter, adminFilter, allOrders]);
+    }, [statusFilter, adminFilter, materialFilter, teamFilter, allOrders]);
 
-    // 필터 옵션 생성 (기존과 동일)
+    // 필터 옵션 생성 (선택된 값이 새 데이터에 없어도 유지)
     const filterOptions = useMemo(() => {
-        const statuses = new Set(allOrders.map(order => order.state));
-        const admins = new Set(allOrders.map(order => order.admin || '미지정'));
-        return {
-            statuses: ['all', ...Array.from(statuses)],
-            admins: ['all', ...Array.from(admins)],
+        const withSelected = (values, selected) => {
+            const set = new Set(values);
+            if (selected && selected !== 'all') set.add(selected);
+            return ['all', ...Array.from(set).sort()];
         };
-    }, [allOrders]);
+
+        return {
+            statuses: withSelected(allOrders.map(order => order.state), statusFilter),
+            admins: withSelected(allOrders.map(order => order.admin || '미지정'), adminFilter),
+            materials: withSelected(
+                allOrders.map(order => order.material).filter(Boolean),
+                materialFilter
+            ),
+            teams: withSelected(
+                allOrders.map(order => order.teamNum).filter(Boolean),
+                teamFilter
+            ),
+        };
+    }, [allOrders, statusFilter, adminFilter, materialFilter, teamFilter]);
 
     // 상태 업데이트 핸들러
     const handleStatusChange = async (orderId, newStatus) => {
         try {
             await apiClient.patch(`/admin/${orderId}/status`, { status: newStatus });
 
-            // API 성공 시, 화면의 데이터를 즉시 업데이트하여 새로고침 효과를 줍니다.
             const updateOrders = (orders) => orders.map(order =>
                 order.orderId === orderId ? { ...order, state: newStatus } : order
             );
@@ -110,13 +143,11 @@ function AdminPage() {
 
     // 담당자 업데이트 핸들러
     const handleManagerChange = async (orderId, newManager) => {
-        // "미지정" 옵션을 선택한 경우, 빈 문자열로 서버에 보냅니다.
         const managerToSend = newManager === '미지정' ? '' : newManager;
 
         try {
             await apiClient.patch(`/admin/${orderId}/manager`, { manager: managerToSend });
 
-            // API 성공 시, 화면의 데이터를 즉시 업데이트합니다.
             const updateOrders = (orders) => orders.map(order =>
                 order.orderId === orderId ? { ...order, admin: managerToSend } : order
             );
@@ -137,34 +168,64 @@ function AdminPage() {
 
                 {/* 필터링 UI */}
                 <div className="filter-container">
-                    <div className="filter-group">
-                        <label htmlFor="status-filter">상태별 조회:</label>
-                        <select id="status-filter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-                            {filterOptions.statuses.map(status => (
-                                <option key={status} value={status}>
-                                    {status === 'all' ? '전체' : (statusMap[status] || status)}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="filter-group">
-                        <label htmlFor="admin-filter">담당자별 조회:</label>
-                        <select id="admin-filter" value={adminFilter} onChange={e => setAdminFilter(e.target.value)}>
-                            {filterOptions.admins.map(admin => (
-                                <option key={admin} value={admin}>
-                                    {admin === 'all' ? '전체' : admin}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="filter-groups">
+                        <div className="filter-group">
+                            <label htmlFor="status-filter">상태별 조회:</label>
+                            <select id="status-filter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                                {filterOptions.statuses.map(status => (
+                                    <option key={status} value={status}>
+                                        {status === 'all' ? '전체' : (statusMap[status] || status)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="filter-group">
+                            <label htmlFor="admin-filter">담당자별 조회:</label>
+                            <select id="admin-filter" value={adminFilter} onChange={e => setAdminFilter(e.target.value)}>
+                                {filterOptions.admins.map(admin => (
+                                    <option key={admin} value={admin}>
+                                        {admin === 'all' ? '전체' : admin}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="filter-group">
+                            <label htmlFor="material-filter">재질별 조회:</label>
+                            <select id="material-filter" value={materialFilter} onChange={e => setMaterialFilter(e.target.value)}>
+                                {filterOptions.materials.map(material => (
+                                    <option key={material} value={material}>
+                                        {material === 'all' ? '전체' : material}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="filter-group">
+                            <label htmlFor="team-filter">팀별 조회:</label>
+                            <select id="team-filter" value={teamFilter} onChange={e => setTeamFilter(e.target.value)}>
+                                {filterOptions.teams.map(team => (
+                                    <option key={team} value={team}>
+                                        {team === 'all' ? '전체' : team}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                     <div className="action-buttons">
+                        <button
+                            type="button"
+                            onClick={handleRefresh}
+                            className="admin-button"
+                            disabled={isRefreshing}
+                        >
+                            {isRefreshing ? '새로고침 중...' : '새로고침'}
+                        </button>
                         <Link to="/admin/settings" className="admin-button">설정</Link>
                         <button onClick={handleLogout} className="admin-button logout">로그아웃</button>
                     </div>
                 </div>
 
                 {/* 주문 목록 테이블 */}
-                <div className="table-wrapper">
+                <div className={`table-wrapper${isRefreshing ? ' is-refreshing' : ''}`}>
                     <table className="order-table">
                         <thead>
                             <tr>
@@ -234,4 +295,3 @@ function AdminPage() {
 }
 
 export default AdminPage;
-
