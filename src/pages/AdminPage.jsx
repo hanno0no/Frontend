@@ -73,6 +73,19 @@ function AdminPage() {
         fetchData({ soft: true });
     };
 
+    const isFilterActive =
+        statusFilter !== 'all' ||
+        adminFilter !== 'all' ||
+        materialFilter !== 'all' ||
+        teamFilter !== 'all';
+
+    const handleResetFilters = () => {
+        setStatusFilter('all');
+        setAdminFilter('all');
+        setMaterialFilter('all');
+        setTeamFilter('all');
+    };
+
     // 필터링 로직
     useEffect(() => {
         let result = allOrders;
@@ -204,6 +217,14 @@ function AdminPage() {
                                 ))}
                             </select>
                         </div>
+                        <button
+                            type="button"
+                            onClick={handleResetFilters}
+                            className="filter-reset-button"
+                            disabled={!isFilterActive}
+                        >
+                            필터 초기화
+                        </button>
                     </div>
                     <div className="action-buttons">
                         <button
