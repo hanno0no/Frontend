@@ -12,10 +12,10 @@ import {
 const store = {
   orders: structuredClone(mockOrders),
   settings: structuredClone(mockSettings),
-  nextOrderId: 106,
+  nextOrderId: 9,
   nextMessageId: 4,
-  nextMaterialId: 5,
-  nextEventId: 3,
+  nextMaterialId: 8,
+  nextEventId: 2,
 };
 
 const delay = (ms = 200) => new Promise((resolve) => setTimeout(resolve, ms));
