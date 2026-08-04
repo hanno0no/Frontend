@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect } from 'react';
-import apiClient from '../api/axios';
+import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
+import apiClient, { setUnauthorizedHandler } from '../api/axios';
 import { isMockMode } from '../mocks/isMock.js';
 
 export const AuthContext = createContext(null);
@@ -17,6 +17,29 @@ const setAuthToken = (token) => {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const handlingUnauthorized = useRef(false);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('accessToken');
+    setAuthToken(null);
+    setUser(null);
+  }, []);
+
+  const handleUnauthorized = useCallback(() => {
+    if (handlingUnauthorized.current || isMockMode) return;
+    if (window.location.pathname === '/login') return;
+
+    handlingUnauthorized.current = true;
+    logout();
+
+    const from = `${window.location.pathname}${window.location.search}`;
+    window.location.replace(`/login?from=${encodeURIComponent(from)}`);
+  }, [logout]);
+
+  useEffect(() => {
+    setUnauthorizedHandler(handleUnauthorized);
+    return () => setUnauthorizedHandler(null);
+  }, [handleUnauthorized]);
 
   useEffect(() => {
     if (isMockMode) {
@@ -31,9 +54,12 @@ export function AuthProvider({ children }) {
     }
 
     const storedToken = localStorage.getItem('accessToken');
-    if (storedToken) {
+    // mock 모드에서 남은 토큰은 실제 API 연동 시 401을 유발하므로 무시
+    if (storedToken && storedToken !== MOCK_TOKEN) {
       setUser({ token: storedToken });
       setAuthToken(storedToken);
+    } else if (storedToken === MOCK_TOKEN) {
+      localStorage.removeItem('accessToken');
     }
     setIsLoading(false);
   }, []);
@@ -43,12 +69,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('accessToken', token);
     setAuthToken(token);
     setUser({ token });
-  };
-
-  const logout = () => {
-    localStorage.removeItem('accessToken');
-    setAuthToken(null);
-    setUser(null);
+    handlingUnauthorized.current = false;
   };
 
   if (isLoading) {

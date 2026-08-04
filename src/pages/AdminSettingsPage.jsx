@@ -39,6 +39,9 @@ function AdminSettingsPage() {
             });
         } catch (err) {
             console.error("설정 정보 조회 에러:", err);
+            if (err.response?.status === 401) {
+                return;
+            }
             setError("설정 정보를 불러오는 데 실패했습니다.");
         } finally {
             setIsLoading(false);

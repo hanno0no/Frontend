@@ -55,6 +55,9 @@ function AdminPage() {
             setError(null);
         } catch (err) {
             console.error("데이터 조회 에러:", err);
+            if (err.response?.status === 401) {
+                return;
+            }
             setError("데이터를 불러오는 데 실패했습니다.");
         } finally {
             if (soft) {

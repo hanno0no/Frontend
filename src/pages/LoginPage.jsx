@@ -13,8 +13,12 @@ function LoginPage() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const from = location.state?.from?.pathname || '/admin';
+  const fromQuery = new URLSearchParams(location.search).get('from');
+  const safeFrom =
+    fromQuery && fromQuery.startsWith('/') && !fromQuery.startsWith('//')
+      ? fromQuery
+      : null;
+  const from = safeFrom || location.state?.from?.pathname || '/admin';
 
   const handleLogin = async (e) => {
     e.preventDefault();
