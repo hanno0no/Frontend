@@ -38,8 +38,33 @@ function resolvePath(config) {
     url = `${String(config.baseURL).replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
   }
   const parsed = new URL(url, 'http://mock.local');
+  const extra = config.params;
+  if (extra) {
+    const entries = extra instanceof URLSearchParams ? extra.entries() : Object.entries(extra);
+    for (const [key, value] of entries) {
+      if (value != null && value !== '') parsed.searchParams.set(key, String(value));
+    }
+  }
   const path = (parsed.pathname.replace(/^\/hnn/, '') || '/').replace(/\/$/, '') || '/';
   return { path, searchParams: parsed.searchParams };
+}
+
+function filterOrders(orders, searchParams) {
+  const status = searchParams.get('status');
+  const manager = searchParams.get('manager');
+  const material = searchParams.get('material');
+  const teamNum = searchParams.get('teamNum');
+  return orders.filter((order) => {
+    if (status && order.state !== status) return false;
+    if (manager === 'unassigned') {
+      if (order.admin) return false;
+    } else if (manager && order.admin !== manager) {
+      return false;
+    }
+    if (material && order.material !== material) return false;
+    if (teamNum && order.teamNum !== teamNum) return false;
+    return true;
+  });
 }
 
 function ok(data, status = 200) {
@@ -69,7 +94,7 @@ export async function handleMockRequest(config) {
 
   // --- Admin orders ---
   if (method === 'get' && path === '/admin/view') {
-    return ok(store.orders);
+    return ok(filterOrders(store.orders, searchParams));
   }
 
   if (method === 'get' && path === '/register/getstate') {

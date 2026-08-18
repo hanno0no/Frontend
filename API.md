@@ -32,7 +32,7 @@
 | `VITE_USE_MOCK` | ✅ |
 | `VITE_API_BASE_URL` | 🔄 (Railway URL 하드코딩) |
 | 401 인터셉터 | 🔄 |
-| manager 미지정 `null` | 🔄 (현재 `""`) |
+| manager 없음 `{ manager: null }` / 조회 `unassigned` | ✅ |
 | 페이지네이션·정렬·stats·material·hide | 🔄 |
 | setting `completedLimit` / `waitingLimit` | 🔄 |
 | SSE `/events` | 🔄 (대시보드 5초 폴링) |
@@ -284,7 +284,16 @@ Admin 드롭다운에 사용. FE 라벨은 `getStatusLabel()`.
 ### `GET /admin/view` ✅ FE (배열) · 🔄 페이지네이션
 
 **인증:** 필요  
-**현재 FE:** 쿼리 없이 전체 배열 로드 + 클라이언트 필터 + 수동 새로고침
+**현재 FE:** 필터 변경 시 같은 URL에 쿼리를 붙여 다시 조회. 응답 배열을 그대로 표시. 수동 새로고침은 현재 쿼리 유지.
+
+**Query (현행)** — 생략하면 활성 대회 기간 전체.
+
+| 파라미터 | 필수 | 설명 |
+|----------|------|------|
+| `status` | 아니오 | 상태 코드. 예: `accepted` |
+| `manager` | 아니오 | 담당자 username. 담당자 없음은 `unassigned`. 이름 `미지정`은 그냥 username |
+| `material` | 아니오 | 재질명 |
+| `teamNum` | 아니오 | 팀번호 |
 
 ```json
 [
@@ -305,7 +314,7 @@ Admin 드롭다운에 사용. FE 라벨은 `getStatusLabel()`.
 | `teamNum` | `string` | 팀명 |
 | `material` | `string` | 재질 |
 | `fileName` | `string \| null` | 파일명 |
-| `admin` | `string` | 담당자. FE 미지정 표시: falsy → `미지정` |
+| `admin` | `string \| null` | 담당자 username. 없으면 빈 문자열/`null` → FE `(없음)` |
 | `state` | `string` | 상태 코드 |
 
 **목표 Query (🔄 Phase 3)**
@@ -339,15 +348,14 @@ Admin 드롭다운에 사용. FE 라벨은 `getStatusLabel()`.
 
 ---
 
-### `PATCH /admin/{orderId}/manager` ✅ FE (부분) · 🔄 null
+### `PATCH /admin/{orderId}/manager` ✅ FE
 
 ```json
 { "manager": "김한노" }
 ```
 
-| | 현재 FE | 목표 |
-|--|---------|------|
-| 미지정 | `""` | `null` |
+담당자 없음: `{ "manager": null }`  
+이름 `미지정`은 `{ "manager": "미지정" }` — 실제 담당자.
 
 ---
 
@@ -547,9 +555,9 @@ path/DTO는 BE 구현 시 확정. FE 라우트·페이지 없음.
 | GET | `/register/getstate` | ✅ | |
 | GET | `/register/getadminname` | ✅ | |
 | POST | `/admin/login` | ✅ | |
-| GET | `/admin/view` | ✅ | 배열. 페이지네이션 🔄 |
+| GET | `/admin/view` | ✅ | 배열. `status`/`manager`/`material`/`teamNum` 쿼리. 페이지네이션 🔄 |
 | PATCH | `/admin/{id}/status` | ✅ | 전이 검증 ⏳ |
-| PATCH | `/admin/{id}/manager` | ✅ | 미지정 `""` → `null` 🔄 |
+| PATCH | `/admin/{id}/manager` | ✅ | 없음 `{ manager: null }`. 이름 `미지정`은 username |
 | GET/PATCH | `/admin/setting` | ✅ | limit 🔄 |
 | POST | `/admin/create/*` | ✅ | |
 | DELETE | `/admin/delete/{type}/{id}` | ✅ | |
