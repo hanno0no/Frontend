@@ -30,3 +30,23 @@
   flex-grow: 1; /* 사이드바를 제외한 남은 가로 공간을 모두 차지 */
   gap: 32px; /* 시계와 공지사항 사이의 간격 */
 }
+
+.dashboard-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 32px;
+}
+
+.dashboard-toolbar button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #495057;
+  cursor: pointer;
+}
+
+.dashboard-toolbar button:hover {
+  color: var(--color-green);
+}

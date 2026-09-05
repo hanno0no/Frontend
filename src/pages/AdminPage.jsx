@@ -2,10 +2,13 @@ import React, { useState, useEffect, useMemo, useContext, useCallback, useRef } 
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
-import apiClient from '../api/axios';
+import apiClient, { API_BASE_URL } from '../api/axios';
 import { buildAdminViewParams, UNASSIGNED_MANAGER, UNASSIGNED_MANAGER_LABEL } from '../api/adminViewParams';
 import Header from '../components/Header';
 import { buildStatusOptions, getStatusLabel } from '../constants/status';
+import { isMockMode } from '../mocks/isMock.js';
+import { eventsUrl, isSseOpen } from '../hooks/sse.js';
+import { useSSE } from '../hooks/useSSE.js';
 import './AdminPage.css';
 
 function AdminPage() {
@@ -102,6 +105,20 @@ function AdminPage() {
     useEffect(() => {
         fetchData({ soft: hasLoaded.current });
     }, [fetchData]);
+
+    const sseRef = useSSE(eventsUrl(API_BASE_URL), {
+        orders_updated: () => { fetchData({ soft: true }); },
+    }, {
+        enabled: !isMockMode,
+    });
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (!error && isSseOpen(sseRef.current)) return;
+            fetchData({ soft: true });
+        }, 5000);
+        return () => clearInterval(intervalId);
+    }, [error, fetchData, sseRef]);
 
     const handleRefresh = () => {
         fetchData({ soft: true });

@@ -2,8 +2,10 @@ import axios from 'axios';
 import { isMockMode } from '../mocks/isMock.js';
 import { handleMockRequest } from '../mocks/handler.js';
 
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://backend-production-2949.up.railway.app/hnn';
+
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://backend-production-2949.up.railway.app/hnn',
+  baseURL: API_BASE_URL,
   timeout: 10000,
 });
 
