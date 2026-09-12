@@ -130,6 +130,14 @@ export async function handleMockRequest(config) {
     return ok({ success: true });
   }
 
+  if (method === 'get' && path === '/admin/stats') {
+    const stats = {};
+    mockStatusList.forEach((code) => {
+      stats[code] = store.orders.filter((o) => o.state === code).length;
+    });
+    return ok(stats);
+  }
+
   // --- Submission ---
   if (method === 'get' && path === '/register/getmaterial') {
     return ok(mockMaterials);
