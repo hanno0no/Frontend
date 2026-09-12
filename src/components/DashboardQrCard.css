@@ -1,0 +1,24 @@
+/* src/components/DashboardQrCard.css */
+
+.qr-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.qr-card-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-black);
+  text-align: center;
+}
+
+.qr-card-code {
+  display: block;
+}

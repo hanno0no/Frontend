@@ -125,6 +125,11 @@ export async function handleMockRequest(config) {
     return ok({ success: true });
   }
 
+  const hideMatch = path.match(/^\/admin\/(\d+)\/hide$/);
+  if (method === 'patch' && hideMatch) {
+    return ok({ success: true });
+  }
+
   if (method === 'get' && path === '/admin/stats') {
     const stats = {};
     mockStatusList.forEach((code) => {

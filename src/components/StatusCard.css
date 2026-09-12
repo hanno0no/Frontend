@@ -60,5 +60,37 @@
 .status-item {
   /* ... 기존 스타일은 그대로 ... */
   padding: 8px 0;
-  text-align: center; 
+  text-align: center;
+  border-radius: 4px;
+}
+
+/* 방금 완료 처리된 항목을 잠깐 강조 표시 */
+.status-item--new {
+  animation: status-item-highlight 3s ease-out;
+}
+
+@keyframes status-item-highlight {
+  0% {
+    background-color: var(--color-green);
+    color: #fff;
+    transform: scale(1.1);
+  }
+  65% {
+    background-color: var(--color-green);
+    color: #fff;
+    transform: scale(1.05);
+  }
+  100% {
+    background-color: transparent;
+    color: inherit;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-item--new {
+    animation: none;
+    background-color: var(--color-green);
+    color: #fff;
+  }
 }
