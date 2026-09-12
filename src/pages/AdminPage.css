@@ -122,10 +122,27 @@
   background-color: var(--color-background-hover);
 }
 
-.order-table td[colSpan="6"] {
+.empty-cell {
   text-align: center;
   padding: 50px;
   color: var(--color-background-hover);
+}
+
+.table-action-button {
+  padding: 6px 10px;
+  border: 1px solid var(--color-background-hover);
+  border-radius: 4px;
+  background-color: transparent;
+  font-size: 13px;
+  font-weight: bold;
+  color: #495057;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.table-action-button:hover {
+  color: var(--color-green);
+  border-color: var(--color-green);
 }
 
 

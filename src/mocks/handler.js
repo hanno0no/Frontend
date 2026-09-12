@@ -125,6 +125,11 @@ export async function handleMockRequest(config) {
     return ok({ success: true });
   }
 
+  const hideMatch = path.match(/^\/admin\/(\d+)\/hide$/);
+  if (method === 'patch' && hideMatch) {
+    return ok({ success: true });
+  }
+
   // --- Submission ---
   if (method === 'get' && path === '/register/getmaterial') {
     return ok(mockMaterials);
