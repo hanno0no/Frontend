@@ -15,6 +15,7 @@ import TeamLookupPage from './pages/TeamLookupPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminSettingPage from './pages/AdminSettingsPage.jsx';
+import AdminStatsPage from './pages/AdminStatsPage.jsx';
 
 
 // 라우터 경로 설정
@@ -54,6 +55,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <AdminSettingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/stats',
+        element: (
+          <ProtectedRoute>
+            <AdminStatsPage />
           </ProtectedRoute>
         ),
       },

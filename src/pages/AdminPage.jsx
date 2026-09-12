@@ -246,6 +246,7 @@ function AdminPage() {
                         >
                             {isRefreshing ? '새로고침 중...' : '새로고침'}
                         </button>
+                        <Link to="/admin/stats" className="admin-button">작업 현황</Link>
                         <Link to="/admin/settings" className="admin-button">설정</Link>
                         <button onClick={handleLogout} className="admin-button logout">로그아웃</button>
                     </div>
