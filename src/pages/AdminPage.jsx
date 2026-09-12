@@ -26,6 +26,7 @@ function AdminPage() {
     const [adminFilter, setAdminFilter] = useState('all');
     const [materialFilter, setMaterialFilter] = useState('all');
     const [teamFilter, setTeamFilter] = useState('all');
+    const [hiddenOrderIds, setHiddenOrderIds] = useState(new Set());
 
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -178,6 +179,24 @@ function AdminPage() {
         }
     };
 
+    const handleToggleHidden = async (orderId, hide) => {
+        try {
+            await apiClient.patch(`/admin/${orderId}/hide`, { hidden: hide });
+            setHiddenOrderIds((prev) => {
+                const next = new Set(prev);
+                if (hide) {
+                    next.add(orderId);
+                } else {
+                    next.delete(orderId);
+                }
+                return next;
+            });
+        } catch (err) {
+            console.error("대시보드 노출 설정 실패:", err);
+            alert("대시보드 노출 설정에 실패했습니다.");
+        }
+    };
+
     const renderPageContent = () => {
         if (isLoading) return <div>로딩 중...</div>;
         if (error) return <div className="error-message">{error}</div>;
@@ -262,11 +281,14 @@ function AdminPage() {
                                 <th>파일명</th>
                                 <th>담당자</th>
                                 <th>상태</th>
+                                <th>대시보드 노출</th>
                             </tr>
                         </thead>
                         <tbody>
                             {orders.length > 0 ? (
-                                orders.map(order => (
+                                orders.map(order => {
+                                    const isHidden = hiddenOrderIds.has(order.orderId);
+                                    return (
                                     <tr key={order.orderId}>
                                         <td>{order.orderId}</td>
                                         <td>{order.teamNum}</td>
@@ -297,11 +319,21 @@ function AdminPage() {
                                                 ))}
                                             </select>
                                         </td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className="table-action-button"
+                                                onClick={() => handleToggleHidden(order.orderId, !isHidden)}
+                                            >
+                                                {isHidden ? '다시 표시' : '숨기기'}
+                                            </button>
+                                        </td>
                                     </tr>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <tr>
-                                    <td colSpan="6">표시할 주문이 없습니다.</td>
+                                    <td colSpan="7" className="empty-cell">표시할 주문이 없습니다.</td>
                                 </tr>
                             )}
                         </tbody>
