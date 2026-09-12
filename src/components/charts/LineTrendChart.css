@@ -1,0 +1,54 @@
+/* src/components/charts/LineTrendChart.css */
+
+.line-trend-chart {
+  width: 100%;
+}
+
+.line-trend-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.line-trend-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1.5px solid #e1e0d9;
+  background-color: #fff;
+  color: #9a988f;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.line-trend-filter-chip:hover {
+  border-color: #c3c2b7;
+}
+
+.line-trend-filter-chip.is-active {
+  background-color: #fff;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.line-trend-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.line-trend-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: #9a988f;
+}

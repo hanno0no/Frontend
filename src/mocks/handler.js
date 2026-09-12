@@ -131,11 +131,25 @@ export async function handleMockRequest(config) {
   }
 
   if (method === 'get' && path === '/admin/stats') {
-    const stats = {};
+    const byState = {};
     mockStatusList.forEach((code) => {
-      stats[code] = store.orders.filter((o) => o.state === code).length;
+      byState[code] = store.orders.filter((o) => o.state === code).length;
     });
-    return ok(stats);
+
+    // mock 모드에는 실제 시간 정보가 없으므로, 최근 12시간짜리 표본 추이를 상태별로 만들어 보여준다.
+    const now = new Date();
+    const timeline = Array.from({ length: 12 }, (_, i) => {
+      const hour = new Date(now);
+      hour.setMinutes(0, 0, 0);
+      hour.setHours(hour.getHours() - (11 - i));
+      const point = { hour: hour.toISOString(), registered: Math.max(0, Math.round(Math.sin(i / 2) * 2 + 2)) };
+      mockStatusList.forEach((code, si) => {
+        point[code] = Math.max(0, Math.round(Math.sin(i / 2 - si) * 2 + 1));
+      });
+      return point;
+    });
+
+    return ok({ byState, timeline, timelineGranularity: 'hour' });
   }
 
   // --- Submission ---

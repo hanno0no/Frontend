@@ -1,0 +1,62 @@
+/* src/components/charts/StatePieChart.css */
+
+.state-pie-chart {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.state-pie-svg {
+  width: 230px;
+  height: 230px;
+  flex-shrink: 0;
+}
+
+.state-pie-slice {
+  transition: opacity 0.15s ease;
+}
+
+.state-pie-slice:hover {
+  opacity: 0.85;
+}
+
+.state-pie-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.state-pie-legend li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.state-pie-legend .legend-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.state-pie-legend-label {
+  color: #1c1c1a;
+  font-weight: 700;
+  min-width: 68px;
+}
+
+.state-pie-legend-value {
+  color: #6b6a63;
+}
+
+.state-pie-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: #9a988f;
+}
