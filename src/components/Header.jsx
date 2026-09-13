@@ -1,18 +1,24 @@
 // src/components/Header.jsx
 import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Header.css';
 
-function Header() {
+function Header({ onRefresh, isRefreshing } = {}) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const { user } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
 
     const authPath = user ? '/admin' : '/login';
+
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
 
     return (
         <header className="header-container">
@@ -40,6 +46,19 @@ function Header() {
                     </nav>
                 )}
             </div>
+
+            {user && (
+                <nav className="header-admin-actions">
+                    {onRefresh && (
+                        <button type="button" onClick={onRefresh} className="header-admin-link" disabled={isRefreshing}>
+                            {isRefreshing ? '새로고침 중...' : '새로고침'}
+                        </button>
+                    )}
+                    <Link to="/admin/stats" className="header-admin-link">작업 현황</Link>
+                    <Link to="/admin/settings" className="header-admin-link">설정</Link>
+                    <button type="button" onClick={handleLogout} className="header-admin-link">로그아웃</button>
+                </nav>
+            )}
         </header>
     );
 }

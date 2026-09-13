@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext, useCallback, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 
 import apiClient, { API_BASE_URL } from '../api/axios';
 import { buildAdminViewParams, UNASSIGNED_MANAGER, UNASSIGNED_MANAGER_LABEL } from '../api/adminViewParams';
@@ -31,15 +29,8 @@ function AdminPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
 
-    const { logout } = useContext(AuthContext);
-    const navigate = useNavigate();
     const fetchSeq = useRef(0);
     const hasLoaded = useRef(false);
-
-    const handleLogout = () => {
-        logout();
-        navigate('/');
-    };
 
     const fetchData = useCallback(async ({ soft = false } = {}) => {
         const seq = ++fetchSeq.current;
@@ -392,19 +383,6 @@ function AdminPage() {
                             필터 초기화
                         </button>
                     </div>
-                    <div className="action-buttons">
-                        <button
-                            type="button"
-                            onClick={handleRefresh}
-                            className="admin-button"
-                            disabled={isRefreshing}
-                        >
-                            {isRefreshing ? '새로고침 중...' : '새로고침'}
-                        </button>
-                        <Link to="/admin/stats" className="admin-button">작업 현황</Link>
-                        <Link to="/admin/settings" className="admin-button">설정</Link>
-                        <button onClick={handleLogout} className="admin-button logout">로그아웃</button>
-                    </div>
                 </div>
 
                 {/* 주문 목록 테이블 */}
@@ -480,7 +458,7 @@ function AdminPage() {
 
     return (
         <div className="page-container">
-            <Header />
+            <Header onRefresh={handleRefresh} isRefreshing={isRefreshing} />
             <div className="main-content-area">
                 {renderPageContent()}
             </div>
