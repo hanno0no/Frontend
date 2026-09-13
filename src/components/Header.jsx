@@ -1,6 +1,6 @@
 // src/components/Header.jsx
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Header.css';
 
@@ -8,6 +8,8 @@ function Header({ onRefresh, isRefreshing } = {}) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
+    const isAdminRoute = location.pathname.startsWith('/admin');
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -47,7 +49,7 @@ function Header({ onRefresh, isRefreshing } = {}) {
                 )}
             </div>
 
-            {user && (
+            {user && isAdminRoute && (
                 <nav className="header-admin-actions">
                     {onRefresh && (
                         <button type="button" onClick={onRefresh} className="header-admin-link" disabled={isRefreshing}>
