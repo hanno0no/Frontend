@@ -31,15 +31,20 @@
   gap: 32px; /* 시계 줄과 공지사항 사이의 간격 */
 }
 
-/* 시계 + QR을 한 줄에 배치. 팀 목록 길이와 무관하게 항상 같은 자리에 보이도록
-   sidebar-container가 아닌 이쪽으로 QR을 옮겨왔다. */
-.clock-row {
+/* 공지사항 + QR을 한 줄에 배치. 시계는 그대로 전체 너비를 유지하고,
+   팀 목록 길이와 무관하게 항상 같은 자리에 보이도록 QR을 이쪽으로 옮겨왔다. */
+.notice-row {
   display: flex;
   align-items: stretch;
   gap: 32px;
 }
 
-.clock-row .qr-card {
+.notice-row .notice-board-container {
+  flex-grow: 1;
+  min-width: 0; /* flex 아이템이 내용 크기만큼 늘어나지 않도록 */
+}
+
+.notice-row .qr-card {
   flex-shrink: 0;
   justify-content: center;
 }

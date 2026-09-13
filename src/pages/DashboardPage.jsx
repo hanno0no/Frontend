@@ -114,11 +114,11 @@ function DashboardPage() {
                     <StatusCard title="대기 명단" items={waitingTeam} />
                 </div>
                 <div className="content-container">
-                    <div className="clock-row">
-                        {endTime && <Clock endTime={endTime} />}
+                    {endTime && <Clock endTime={endTime} />}
+                    <div className="notice-row">
+                        <NoticeBoard messages={messages} />
                         <DashboardQrCard />
                     </div>
-                    <NoticeBoard messages={messages} />
                 </div>
             </main>
         </div>
