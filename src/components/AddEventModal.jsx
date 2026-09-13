@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Modal from './Modal';
 import '/src/components/AddEventModal.css';
 
 function AddEventModal({ isOpen, onClose, onSubmit }) {
@@ -22,10 +23,6 @@ function AddEventModal({ isOpen, onClose, onSubmit }) {
             });
         }
     }, [isOpen]);
-
-    if (!isOpen) {
-        return null;
-    }
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -52,64 +49,62 @@ function AddEventModal({ isOpen, onClose, onSubmit }) {
 
 
     return (
-        <div className="modal-backdrop" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <h3>새 대회 추가</h3>
-                <form onSubmit={handleSubmit} className="add-event-form">
-                    <div className="form-group">
-                        <label>대회 이름</label>
+        <Modal isOpen={isOpen} onClose={onClose} showCloseButton={false} contentClassName="add-event-modal">
+            <h3>새 대회 추가</h3>
+            <form onSubmit={handleSubmit} className="add-event-form">
+                <div className="form-group">
+                    <label>대회 이름</label>
+                    <input
+                        type="text"
+                        name="eventName"
+                        value={eventData.eventName}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label>설명</label>
+                    <textarea
+                        name="description"
+                        value={eventData.description}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className="form-group">
+                    <label>시작 시간</label>
+                    <input
+                        type="datetime-local"
+                        name="startTime"
+                        value={eventData.startTime}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className="form-group">
+                    <label>종료 시간</label>
+                    <input
+                        type="datetime-local"
+                        name="endTime"
+                        value={eventData.endTime}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className="checkbox-group modal-checkbox">
+                    <label>
                         <input
-                            type="text"
-                            name="eventName"
-                            value={eventData.eventName}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>설명</label>
-                        <textarea
-                            name="description"
-                            value={eventData.description}
+                            type="checkbox"
+                            name="open"
+                            checked={eventData.open}
                             onChange={handleChange}
                         />
-                    </div>
-                    <div className="form-group">
-                        <label>시작 시간</label>
-                        <input
-                            type="datetime-local"
-                            name="startTime"
-                            value={eventData.startTime}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>종료 시간</label>
-                        <input
-                            type="datetime-local"
-                            name="endTime"
-                            value={eventData.endTime}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="checkbox-group modal-checkbox">
-                        <label>
-                            <input
-                                type="checkbox"
-                                name="open"
-                                checked={eventData.open}
-                                onChange={handleChange}
-                            />
-                            진행중
-                        </label>
-                    </div>
-                    <div className="modal-buttons">
-                        <button type="button" onClick={onClose} className="cancel-button">취소</button>
-                        <button type="submit" className="submit-button">추가</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                        진행중
+                    </label>
+                </div>
+                <div className="modal-buttons">
+                    <button type="button" onClick={onClose} className="cancel-button">취소</button>
+                    <button type="submit" className="submit-button">추가</button>
+                </div>
+            </form>
+        </Modal>
     );
 }
 

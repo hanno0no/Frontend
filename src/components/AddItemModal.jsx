@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Modal from './Modal';
 import '/src/components/AddItemModal.css';
 
 function AddItemModal({ isOpen, onClose, onSubmit, title }) {
@@ -17,11 +18,6 @@ function AddItemModal({ isOpen, onClose, onSubmit, title }) {
         }
     }, [isOpen]);
 
-
-    if (!isOpen) {
-        return null;
-    }
-
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!inputValue.trim()) {
@@ -38,25 +34,22 @@ function AddItemModal({ isOpen, onClose, onSubmit, title }) {
     }
 
     return (
-        <div className="modal-backdrop" onClick={handleClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <h3>{title}</h3>
-                <form onSubmit={handleSubmit} className="add-item-form">
-                    <input
-                        type="text"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="새 항목 이름 입력"
-                    />
-                    <div className="modal-buttons">
-                        <button type="button" onClick={handleClose} className="cancel-button">취소</button>
-                        <button type="submit" className="submit-button">추가</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <Modal isOpen={isOpen} onClose={handleClose} showCloseButton={false} contentClassName="add-item-modal">
+            <h3>{title}</h3>
+            <form onSubmit={handleSubmit} className="add-item-form">
+                <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="새 항목 이름 입력"
+                />
+                <div className="modal-buttons">
+                    <button type="button" onClick={handleClose} className="cancel-button">취소</button>
+                    <button type="submit" className="submit-button">추가</button>
+                </div>
+            </form>
+        </Modal>
     );
 }
 
 export default AddItemModal;
-
