@@ -40,7 +40,7 @@ function Header({ onRefresh, isRefreshing } = {}) {
                                 <Link to="/team-lookup" onClick={() => setIsDropdownOpen(false)}>팀별 조회</Link>
                             </li>
                             <li>
-                                <Link to={authPath} onClick={() => setIsDropdownOpen(false)}>LOGIN</Link>
+                                <Link to={authPath} onClick={() => setIsDropdownOpen(false)}>{user ? '관리자 페이지' : '로그인'}</Link>
                             </li>
                         </ul>
                     </nav>
