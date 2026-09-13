@@ -55,6 +55,7 @@ function Header({ onRefresh, isRefreshing } = {}) {
                         </button>
                     )}
                     <Link to="/admin/stats" className="header-admin-link">작업 현황</Link>
+                    <Link to="/admin/teams" className="header-admin-link">팀 관리</Link>
                     <Link to="/admin/settings" className="header-admin-link">설정</Link>
                     <button type="button" onClick={handleLogout} className="header-admin-link">로그아웃</button>
                 </nav>

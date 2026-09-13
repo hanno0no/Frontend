@@ -1,0 +1,154 @@
+/* src/pages/TeamManagementPage.css */
+
+.team-page-card {
+  background-color: var(--color-background);
+  border-radius: 8px;
+  padding: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.team-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.team-page-header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.team-header-link {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #495057;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.team-header-link:hover {
+  color: var(--color-green);
+}
+
+.team-create-form {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-background-hover);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-weight: bold;
+  color: #495057;
+  font-size: 14px;
+}
+
+.form-field input,
+.team-phone-input {
+  padding: 8px 12px;
+  border: 1px solid var(--color-background-hover);
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: var(--color-background);
+  color: #495057;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-field input:hover,
+.team-phone-input:hover {
+  border-color: var(--color-green);
+}
+
+.form-field input:focus,
+.team-phone-input:focus {
+  outline: none;
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 3px rgba(38, 166, 153, 0.15);
+}
+
+.team-submit-button {
+  padding: 9px 16px;
+  border: 1px solid var(--color-green);
+  border-radius: 6px;
+  background-color: var(--color-green);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.team-submit-button:hover {
+  opacity: 0.85;
+}
+
+.team-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.team-table th,
+.team-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--color-background-hover);
+  text-align: left;
+}
+
+.team-table th {
+  background-color: var(--color-background-hover);
+  font-weight: bold;
+}
+
+.team-table tbody tr:hover {
+  background-color: var(--color-background-hover);
+}
+
+.team-phone-input {
+  width: 160px;
+}
+
+.team-row-actions {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.team-action-button {
+  padding: 6px 10px;
+  border: 1px solid var(--color-background-hover);
+  border-radius: 4px;
+  background-color: transparent;
+  font-size: 13px;
+  font-weight: bold;
+  color: #495057;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.team-action-button:hover {
+  color: var(--color-green);
+  border-color: var(--color-green);
+}
+
+.team-action-delete:hover {
+  color: var(--color-red);
+  border-color: var(--color-red);
+}
+
+.empty-cell {
+  text-align: center;
+  padding: 50px;
+  color: var(--color-background-hover);
+}
