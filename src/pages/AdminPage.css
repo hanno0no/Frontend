@@ -35,11 +35,44 @@
   color: #495057;
 }
 
-.filter-group select {
-  padding: 8px 12px;
+.filter-group select,
+.table-select,
+.page-size-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23495057' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding: 8px 30px 8px 12px;
   border: 1px solid var(--color-background-hover);
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
+  color: var(--color-black);
+  cursor: pointer;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.filter-group select:hover,
+.table-select:hover,
+.page-size-group select:hover {
+  border-color: var(--color-green);
+}
+
+.filter-group select:focus,
+.table-select:focus,
+.page-size-group select:focus {
+  outline: none;
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 3px rgba(38, 166, 153, 0.15);
+}
+
+.filter-group select:disabled,
+.table-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .filter-reset-button {
@@ -133,15 +166,6 @@
 
 .table-select {
   width: 100%;
-  padding: 6px;
-  border: 1px solid var(--color-background);
-  border-radius: 4px;
-  background-color: transparent;
-}
-
-.table-select:focus {
-  outline: 2px solid var(--color-green);
-  border-color: transparent;
 }
 
 .table-wrapper.is-refreshing {
@@ -183,13 +207,6 @@
   gap: 8px;
   font-size: 14px;
   color: #495057;
-}
-
-.page-size-group select {
-  padding: 6px 10px;
-  border: 1px solid var(--color-background-hover);
-  border-radius: 4px;
-  font-size: 14px;
 }
 
 .page-nav {
