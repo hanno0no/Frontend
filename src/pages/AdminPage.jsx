@@ -197,8 +197,73 @@ function AdminPage() {
         }
     };
 
+    const renderTableBody = () => {
+        if (isLoading) {
+            return Array.from({ length: 6 }).map((_, rowIndex) => (
+                <tr key={`skeleton-${rowIndex}`} className="skeleton-row">
+                    {Array.from({ length: 7 }).map((__, cellIndex) => (
+                        <td key={cellIndex}><div className="skeleton-cell" /></td>
+                    ))}
+                </tr>
+            ));
+        }
+
+        if (orders.length === 0) {
+            return (
+                <tr>
+                    <td colSpan="7" className="empty-cell">표시할 주문이 없습니다.</td>
+                </tr>
+            );
+        }
+
+        return orders.map(order => {
+            const isHidden = hiddenOrderIds.has(order.orderId);
+            return (
+            <tr key={order.orderId}>
+                <td>{order.orderId}</td>
+                <td>{order.teamNum}</td>
+                <td>{order.material}</td>
+                <td>{order.fileName || '-'}</td>
+                <td>
+                    <select
+                        className="table-select"
+                        value={order.admin || UNASSIGNED_MANAGER}
+                        onChange={(e) => handleManagerChange(order.orderId, e.target.value)}
+                    >
+                        <option value={UNASSIGNED_MANAGER}>{UNASSIGNED_MANAGER_LABEL}</option>
+                        {adminList.map(adminName => (
+                            <option key={adminName} value={adminName}>{adminName}</option>
+                        ))}
+                    </select>
+                </td>
+                <td>
+                    <select
+                        className="table-select"
+                        value={order.state}
+                        onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
+                    >
+                        {statusList.map(statusValue => (
+                            <option key={statusValue} value={statusValue}>
+                                {getStatusLabel(statusValue)}
+                            </option>
+                        ))}
+                    </select>
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        className="table-action-button"
+                        onClick={() => handleToggleHidden(order.orderId, !isHidden)}
+                    >
+                        {isHidden ? '다시 표시' : '숨기기'}
+                    </button>
+                </td>
+            </tr>
+            );
+        });
+    };
+
     const renderPageContent = () => {
-        if (isLoading) return <div>로딩 중...</div>;
         if (error) return <div className="error-message">{error}</div>;
 
         return (
@@ -286,57 +351,7 @@ function AdminPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {orders.length > 0 ? (
-                                orders.map(order => {
-                                    const isHidden = hiddenOrderIds.has(order.orderId);
-                                    return (
-                                    <tr key={order.orderId}>
-                                        <td>{order.orderId}</td>
-                                        <td>{order.teamNum}</td>
-                                        <td>{order.material}</td>
-                                        <td>{order.fileName || '-'}</td>
-                                        <td>
-                                            <select
-                                                className="table-select"
-                                                value={order.admin || UNASSIGNED_MANAGER}
-                                                onChange={(e) => handleManagerChange(order.orderId, e.target.value)}
-                                            >
-                                                <option value={UNASSIGNED_MANAGER}>{UNASSIGNED_MANAGER_LABEL}</option>
-                                                {adminList.map(adminName => (
-                                                    <option key={adminName} value={adminName}>{adminName}</option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select
-                                                className="table-select"
-                                                value={order.state}
-                                                onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
-                                            >
-                                                {statusList.map(statusValue => (
-                                                    <option key={statusValue} value={statusValue}>
-                                                        {getStatusLabel(statusValue)}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <button
-                                                type="button"
-                                                className="table-action-button"
-                                                onClick={() => handleToggleHidden(order.orderId, !isHidden)}
-                                            >
-                                                {isHidden ? '다시 표시' : '숨기기'}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan="7" className="empty-cell">표시할 주문이 없습니다.</td>
-                                </tr>
-                            )}
+                            {renderTableBody()}
                         </tbody>
                     </table>
                 </div>
