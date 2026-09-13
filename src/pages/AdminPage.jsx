@@ -204,6 +204,18 @@ function AdminPage() {
         }
     };
 
+    const handleMaterialChange = async (orderId, newMaterial) => {
+        try {
+            await apiClient.patch(`/admin/${orderId}/material`, { material: newMaterial });
+            setOrders((prevOrders) => prevOrders.map((order) =>
+                order.orderId === orderId ? { ...order, material: newMaterial } : order
+            ));
+        } catch (err) {
+            console.error("재질 업데이트 실패:", err);
+            alert("재질 업데이트에 실패했습니다.");
+        }
+    };
+
     const handleManagerChange = async (orderId, newManager) => {
         const managerToSend = newManager === UNASSIGNED_MANAGER ? null : newManager;
 
@@ -261,7 +273,17 @@ function AdminPage() {
             <tr key={order.orderId}>
                 <td>{order.orderId}</td>
                 <td>{order.teamNum}</td>
-                <td>{order.material}</td>
+                <td>
+                    <select
+                        className="table-select"
+                        value={order.material}
+                        onChange={(e) => handleMaterialChange(order.orderId, e.target.value)}
+                    >
+                        {[...new Set([order.material, ...materialList.filter(Boolean)])].map(materialName => (
+                            <option key={materialName} value={materialName}>{materialName}</option>
+                        ))}
+                    </select>
+                </td>
                 <td>{order.fileName || '-'}</td>
                 <td>
                     <select
