@@ -1,3 +1,6 @@
+/* Pretendard 폰트 CDN 로드 (font-family: 'Pretendard'는 아래 --font-family-main에서 사용) */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
 /* :root 안에 변수를 선언하여 프로젝트 어디서든 사용할 수 있게 합니다. */
 :root {
   --color-background: #d9d9d9; /* 피그마의 밝은 회색 배경 */
