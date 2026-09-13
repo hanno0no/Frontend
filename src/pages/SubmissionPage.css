@@ -16,7 +16,7 @@
 }
 
 .submission-card {
-  max-width: 500px; /* 폼이므로 너비를 조금 좁게 설정 */
+  max-width: 560px; /* 태블릿 가로에서도 여유 있게 */
   margin: 0 auto;
   background-color: #FFFFFF;
   border: 1px solid var(--color-background);
@@ -53,30 +53,66 @@
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  border: 1px solid #DEE2E6;
-  border-radius: 4px;
+  padding: 16px 14px;
+  font-size: 17px;
+  border: 1px solid var(--color-background-hover);
+  border-radius: 6px;
+  background-color: #F8F9FA;
+  color: var(--color-black);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-group input:hover,
+.form-group select:hover {
+  border-color: var(--color-green);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 3px rgba(38, 166, 153, 0.15);
+}
+
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23495057' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.form-group select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .submit-button {
   display: block;
+  width: 100%;
   margin: 20px auto 0 auto; /* 위쪽 여백 추가 */
-  padding: 12px 50px;
-  font-size: 16px;
+  padding: 16px 50px;
+  font-size: 17px;
   font-weight: bold;
   background-color: var(--color-green);
   color: #FFFFFF;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: opacity 0.15s ease-in-out;
 }
 
-.feedback-message {
-  text-align: center;
-  margin-top: 20px;
-  font-weight: bold;
-  color: var(--color-green); /* 성공 메시지는 초록색 */
+.submit-button:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .feedback-message {
@@ -84,10 +120,14 @@
   margin-top: 20px;
   font-weight: bold;
   color: var(--color-green); /* 기본(성공)은 초록색 */
+  padding: 12px 16px;
+  border-radius: 6px;
 }
 
 .feedback-message.error {
-  color: #d8000c; /* 실패는 빨간색 */
+  color: var(--color-red);
+  background-color: rgba(217, 52, 78, 0.08);
+  border: 1px solid rgba(217, 52, 78, 0.25);
 }
 
 .modal-title {
