@@ -26,9 +26,22 @@
 /* 오른쪽 메인 컨텐츠 영역 */
 .content-container {
   display: flex;
-  flex-direction: column; /* 시계와 공지사항을 세로로 배치 */
+  flex-direction: column; /* 시계 줄과 공지사항을 세로로 배치 */
   flex-grow: 1; /* 사이드바를 제외한 남은 가로 공간을 모두 차지 */
-  gap: 32px; /* 시계와 공지사항 사이의 간격 */
+  gap: 32px; /* 시계 줄과 공지사항 사이의 간격 */
+}
+
+/* 시계 + QR을 한 줄에 배치. 팀 목록 길이와 무관하게 항상 같은 자리에 보이도록
+   sidebar-container가 아닌 이쪽으로 QR을 옮겨왔다. */
+.clock-row {
+  display: flex;
+  align-items: stretch;
+  gap: 32px;
+}
+
+.clock-row .qr-card {
+  flex-shrink: 0;
+  justify-content: center;
 }
 
 .dashboard-toolbar {
