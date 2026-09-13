@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import apiClient, { API_BASE_URL } from '../api/axios';
 import { buildAdminViewParams, UNASSIGNED_MANAGER, UNASSIGNED_MANAGER_LABEL } from '../api/adminViewParams';
 import Header from '../components/Header';
-import { buildStatusOptions, getStatusLabel } from '../constants/status';
+import { buildStatusOptions, getStatusLabel, STATUS_ORDER } from '../constants/status';
 import { isMockMode } from '../mocks/isMock.js';
 import { eventsUrl, isSseOpen } from '../hooks/sse.js';
 import { useSSE } from '../hooks/useSSE.js';
@@ -27,6 +27,7 @@ function AdminPage() {
     const [materialFilter, setMaterialFilter] = useState('all');
     const [teamFilter, setTeamFilter] = useState('all');
     const [hiddenOrderIds, setHiddenOrderIds] = useState(new Set());
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -153,6 +154,44 @@ function AdminPage() {
         };
     }, [statusList, adminList, materialList, teamList, statusFilter, adminFilter, materialFilter, teamFilter]);
 
+    const handleSort = (key) => {
+        setSortConfig((prev) => {
+            if (prev.key !== key) return { key, direction: 'asc' };
+            if (prev.direction === 'asc') return { key, direction: 'desc' };
+            return { key: null, direction: 'asc' };
+        });
+    };
+
+    const renderSortIndicator = (key) => {
+        if (sortConfig.key !== key) return null;
+        return sortConfig.direction === 'asc' ? ' ▲' : ' ▼';
+    };
+
+    const sortedOrders = useMemo(() => {
+        if (!sortConfig.key) return orders;
+
+        const sign = sortConfig.direction === 'asc' ? 1 : -1;
+        const statusRank = (state) => {
+            const index = STATUS_ORDER.indexOf(state);
+            return index === -1 ? STATUS_ORDER.length : index;
+        };
+
+        const compare = (a, b) => {
+            switch (sortConfig.key) {
+                case 'orderId':
+                    return (a.orderId - b.orderId) * sign;
+                case 'teamNum':
+                    return String(a.teamNum ?? '').localeCompare(String(b.teamNum ?? ''), 'ko', { numeric: true }) * sign;
+                case 'state':
+                    return (statusRank(a.state) - statusRank(b.state)) * sign;
+                default:
+                    return 0;
+            }
+        };
+
+        return [...orders].sort(compare);
+    }, [orders, sortConfig]);
+
     const handleStatusChange = async (orderId, newStatus) => {
         try {
             await apiClient.patch(`/admin/${orderId}/status`, { status: newStatus });
@@ -208,7 +247,7 @@ function AdminPage() {
             ));
         }
 
-        if (orders.length === 0) {
+        if (sortedOrders.length === 0) {
             return (
                 <tr>
                     <td colSpan="7" className="empty-cell">표시할 주문이 없습니다.</td>
@@ -216,7 +255,7 @@ function AdminPage() {
             );
         }
 
-        return orders.map(order => {
+        return sortedOrders.map(order => {
             const isHidden = hiddenOrderIds.has(order.orderId);
             return (
             <tr key={order.orderId}>
@@ -341,12 +380,24 @@ function AdminPage() {
                     <table className="order-table">
                         <thead>
                             <tr>
-                                <th>주문 ID</th>
-                                <th>팀명</th>
+                                <th>
+                                    <button type="button" className="sortable-header" onClick={() => handleSort('orderId')}>
+                                        주문 ID{renderSortIndicator('orderId')}
+                                    </button>
+                                </th>
+                                <th>
+                                    <button type="button" className="sortable-header" onClick={() => handleSort('teamNum')}>
+                                        팀명{renderSortIndicator('teamNum')}
+                                    </button>
+                                </th>
                                 <th>재질</th>
                                 <th>파일명</th>
                                 <th>담당자</th>
-                                <th>상태</th>
+                                <th>
+                                    <button type="button" className="sortable-header" onClick={() => handleSort('state')}>
+                                        상태{renderSortIndicator('state')}
+                                    </button>
+                                </th>
                                 <th>대시보드 노출</th>
                             </tr>
                         </thead>
