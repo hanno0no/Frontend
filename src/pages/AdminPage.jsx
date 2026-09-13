@@ -28,6 +28,8 @@ function AdminPage() {
     const [teamFilter, setTeamFilter] = useState('all');
     const [hiddenOrderIds, setHiddenOrderIds] = useState(new Set());
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
 
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -192,6 +194,14 @@ function AdminPage() {
         return [...orders].sort(compare);
     }, [orders, sortConfig]);
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [statusFilter, adminFilter, materialFilter, teamFilter, sortConfig, pageSize]);
+
+    const totalPages = Math.max(1, Math.ceil(sortedOrders.length / pageSize));
+    const safePage = Math.min(currentPage, totalPages);
+    const pagedOrders = sortedOrders.slice((safePage - 1) * pageSize, safePage * pageSize);
+
     const handleStatusChange = async (orderId, newStatus) => {
         try {
             await apiClient.patch(`/admin/${orderId}/status`, { status: newStatus });
@@ -267,7 +277,7 @@ function AdminPage() {
             );
         }
 
-        return sortedOrders.map(order => {
+        return pagedOrders.map(order => {
             const isHidden = hiddenOrderIds.has(order.orderId);
             return (
             <tr key={order.orderId}>
@@ -428,6 +438,42 @@ function AdminPage() {
                         </tbody>
                     </table>
                 </div>
+
+                {!isLoading && sortedOrders.length > 0 && (
+                    <div className="pagination-bar">
+                        <div className="page-size-group">
+                            <label htmlFor="page-size">페이지당 표시:</label>
+                            <select
+                                id="page-size"
+                                value={pageSize}
+                                onChange={(e) => setPageSize(Number(e.target.value))}
+                            >
+                                {[10, 20, 50].map(size => (
+                                    <option key={size} value={size}>{size}건</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="page-nav">
+                            <button
+                                type="button"
+                                className="table-action-button"
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={safePage <= 1}
+                            >
+                                이전
+                            </button>
+                            <span className="page-indicator">{safePage} / {totalPages}</span>
+                            <button
+                                type="button"
+                                className="table-action-button"
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={safePage >= totalPages}
+                            >
+                                다음
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     };

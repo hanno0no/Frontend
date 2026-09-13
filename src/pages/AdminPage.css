@@ -200,3 +200,41 @@
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-background-hover);
+}
+
+.page-size-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.page-size-group select {
+  padding: 6px 10px;
+  border: 1px solid var(--color-background-hover);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.page-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-indicator {
+  font-size: 14px;
+  font-weight: bold;
+  color: #495057;
+}
