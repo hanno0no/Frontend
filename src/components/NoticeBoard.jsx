@@ -6,8 +6,8 @@ function NoticeBoard({ messages }) {
     return (
         <div className="notice-board-container">
             <ul>
-                {messages.map((msg, index) => (
-                    <li key={index}>{msg}</li>
+                {messages.map((msg) => (
+                    <li key={msg}>{msg}</li>
                 ))}
             </ul>
         </div>
