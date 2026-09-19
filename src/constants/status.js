@@ -57,6 +57,8 @@ export function getAdminStatusStyle(code) {
   switch (STATUS_STAGE[code]) {
     case 'in_progress':
       return 'status-badge status-badge--action-needed';
+    case 'ready':
+      return 'status-badge status-badge--ready';
     case 'failed':
       return 'status-badge status-badge--muted';
     default:
