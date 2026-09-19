@@ -1,10 +1,12 @@
 import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
-import apiClient, { setUnauthorizedHandler } from '../api/axios';
+import apiClient, { setUnauthorizedHandler, setTokenRefreshHandler } from '../api/axios';
 import { isMockMode } from '../mocks/isMock.js';
+import { getUsernameFromToken } from '../utils/jwt';
 
 export const AuthContext = createContext(null);
 
 const MOCK_TOKEN = 'mock-access-token';
+const MOCK_USERNAME = 'mock-admin';
 
 const setAuthToken = (token) => {
   if (token) {
@@ -13,6 +15,11 @@ const setAuthToken = (token) => {
     delete apiClient.defaults.headers.common['Authorization'];
   }
 };
+
+const buildUser = (token) => ({
+  token,
+  username: token === MOCK_TOKEN ? MOCK_USERNAME : getUsernameFromToken(token),
+});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -42,12 +49,22 @@ export function AuthProvider({ children }) {
   }, [handleUnauthorized]);
 
   useEffect(() => {
+    const handleTokenRefreshed = (newToken) => {
+      localStorage.setItem('accessToken', newToken);
+      setAuthToken(newToken);
+      setUser(buildUser(newToken));
+    };
+    setTokenRefreshHandler(handleTokenRefreshed);
+    return () => setTokenRefreshHandler(null);
+  }, []);
+
+  useEffect(() => {
     if (isMockMode) {
       // 디자인용: 최초 진입 시 관리자 페이지로 바로 들어갈 수 있게 로그인 상태 유지
       // (로그아웃 후엔 로그인 화면 확인 가능 — 아무 계정이나 통과)
       const storedToken = localStorage.getItem('accessToken') || MOCK_TOKEN;
       localStorage.setItem('accessToken', storedToken);
-      setUser({ token: storedToken });
+      setUser(buildUser(storedToken));
       setAuthToken(storedToken);
       setIsLoading(false);
       return;
@@ -56,7 +73,7 @@ export function AuthProvider({ children }) {
     const storedToken = localStorage.getItem('accessToken');
     // mock 모드에서 남은 토큰은 실제 API 연동 시 401을 유발하므로 무시
     if (storedToken && storedToken !== MOCK_TOKEN) {
-      setUser({ token: storedToken });
+      setUser(buildUser(storedToken));
       setAuthToken(storedToken);
     } else if (storedToken === MOCK_TOKEN) {
       localStorage.removeItem('accessToken');
@@ -68,7 +85,7 @@ export function AuthProvider({ children }) {
     const token = userData.accessToken;
     localStorage.setItem('accessToken', token);
     setAuthToken(token);
-    setUser({ token });
+    setUser(buildUser(token));
     handlingUnauthorized.current = false;
   };
 

@@ -7,6 +7,9 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://backen
 const client = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
+  // 배열 파라미터(예: 복수 선택된 status)를 status[]= 대신 status=a&status=b 형태로 전송.
+  // Spring의 List<String> 쿼리 파라미터 바인딩과 호환되도록 하기 위함.
+  paramsSerializer: { indexes: null },
 });
 
 /** AuthContext에서 등록: 401 시 로그아웃 + /login 이동 */
@@ -16,13 +19,26 @@ export function setUnauthorizedHandler(handler) {
   onUnauthorized = handler;
 }
 
+/** AuthContext에서 등록: 활동 시마다 재발급되는 토큰을 저장소에 반영 (슬라이딩 만료) */
+let onTokenRefreshed = null;
+
+export function setTokenRefreshHandler(handler) {
+  onTokenRefreshed = handler;
+}
+
 function isLoginRequest(config) {
   const url = config?.url || '';
   return url.includes('/admin/login');
 }
 
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const newToken = response.headers?.['new-access-token'];
+    if (newToken) {
+      onTokenRefreshed?.(newToken);
+    }
+    return response;
+  },
   (error) => {
     if (
       !isMockMode &&
