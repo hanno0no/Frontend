@@ -4,7 +4,7 @@ import apiClient from '../api/axios';
 import './TeamLookupPage.css';
 
 import Header from '../components/Header';
-import { getStatusLabel } from '../constants/status';
+import StatusBadge from '../components/StatusBadge';
 
 function TeamLookupPage() {
     const [teamName, setTeamName] = useState('');
@@ -88,7 +88,7 @@ function TeamLookupPage() {
                                         <tr key={order.orderId}>
                                             <td>{index + 1}</td>
                                             <td>{order.material}</td>
-                                            <td>{getStatusLabel(order.status)}</td>
+                                            <td><StatusBadge status={order.status} /></td>
                                             <td>{new Date(order.orderTime).toLocaleString('ko-KR')}</td>
                                         </tr>
                                     ))}

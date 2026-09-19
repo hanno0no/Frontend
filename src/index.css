@@ -9,6 +9,7 @@
   --color-blue: #84DEFA;
   --color-green: #26a699;
   --color-red: #D9344E;
+  --color-amber: #E8A33D;
 
   /* 폰트나 다른 변수들도 추가할 수 있습니다. */
   --font-family-main: 'Pretendard', sans-serif;
@@ -32,4 +33,88 @@ h1, h2, h3, h4, h5, h6, b, strong {
 /* box-sizing을 설정하면 padding과 border가 너비/높이에 포함되어 레이아웃 잡기가 수월해집니다. */
 * {
   box-sizing: border-box;
+}
+
+/*
+ * 상태 배지 공통 스타일 (팀별 조회 / 어드민 페이지 공용).
+ * 페이지별로 어떤 상태를 강조할지는 constants/status.js의
+ * getTeamStatusStyle / getAdminStatusStyle 가 결정하고, 실제 색상은 여기서 정의한다.
+ */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* 완료: 팀 페이지의 "출력 완료(픽업 가능)", 어드민 페이지의 "수령 완료" */
+.status-badge--ready {
+  background-color: rgba(38, 166, 153, 0.16);
+  color: #1a7d70;
+  border: 1px solid rgba(38, 166, 153, 0.4);
+}
+
+/* 처리 필요: 어드민 페이지의 제출/접수/디자인 완료 */
+.status-badge--action-needed {
+  background-color: rgba(232, 163, 61, 0.2);
+  color: #8a5a12;
+  border: 1px solid rgba(232, 163, 61, 0.5);
+}
+
+/* 실패: 두 페이지 모두 무채색으로 약하게 표시 */
+.status-badge--muted {
+  background-color: #ececec;
+  color: #8a8a8a;
+  border: 1px solid #dcdcdc;
+}
+
+/* 그 외 진행 단계: 강조하지 않는 중립 톤 */
+.status-badge--neutral {
+  background-color: #eef1f4;
+  color: #5a6470;
+  border: 1px solid #dde2e7;
+}
+
+/* <select>에 적용될 때도 배지처럼 보이도록 보정 */
+select.status-badge {
+  padding: 4px 8px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* 페이지별 .table-select 등 기본 select 스타일보다 우선 적용되도록 태그+클래스로 명시 */
+select.status-badge--ready {
+  background-color: rgba(38, 166, 153, 0.16);
+  color: #1a7d70;
+  border-color: rgba(38, 166, 153, 0.4);
+}
+select.status-badge--action-needed {
+  background-color: rgba(232, 163, 61, 0.2);
+  color: #8a5a12;
+  border-color: rgba(232, 163, 61, 0.5);
+}
+select.status-badge--muted {
+  background-color: #ececec;
+  color: #8a8a8a;
+  border-color: #dcdcdc;
+}
+select.status-badge--neutral {
+  background-color: #eef1f4;
+  color: #5a6470;
+  border-color: #dde2e7;
+}
+
+/* 담당자 배지: 로그인한 관리자 본인에게 배정된 업무를 표시 */
+.status-badge--mine {
+  background-color: rgba(132, 222, 250, 0.35);
+  color: #0f6a86;
+  border: 1px solid rgba(132, 222, 250, 0.7);
+}
+select.status-badge--mine {
+  background-color: rgba(132, 222, 250, 0.35);
+  color: #0f6a86;
+  border-color: rgba(132, 222, 250, 0.7);
 }
