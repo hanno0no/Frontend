@@ -6,12 +6,14 @@ import {
   mockSettings,
   mockStatusList,
   mockTeamStatus,
+  mockTeams,
 } from './data.js';
 
 /** 런타임에 변경 가능한 in-memory store */
 const store = {
   orders: structuredClone(mockOrders),
   settings: structuredClone(mockSettings),
+  teams: structuredClone(mockTeams),
   nextOrderId: 9,
   nextMessageId: 4,
   nextMaterialId: 8,
@@ -111,6 +113,36 @@ export async function handleMockRequest(config) {
 
   if (method === 'get' && path === '/register/getadminname') {
     return ok(mockAdminList);
+  }
+
+  // --- Team management ---
+  if (method === 'get' && path === '/admin/teams') {
+    return ok(store.teams);
+  }
+
+  if (method === 'post' && path === '/admin/teams') {
+    const body = getBody(config);
+    if (store.teams.some((t) => t.teamNum === body.teamNum)) {
+      return { data: { message: '이미 존재하는 팀 번호입니다.' }, status: 400, statusText: 'Bad Request' };
+    }
+    store.teams = [...store.teams, { teamNum: body.teamNum, phoneNumber: body.phoneNumber ?? null }];
+    return ok({ success: true });
+  }
+
+  const teamMatch = path.match(/^\/admin\/teams\/(.+)$/);
+  if (method === 'patch' && teamMatch) {
+    const teamNum = decodeURIComponent(teamMatch[1]);
+    const body = getBody(config);
+    store.teams = store.teams.map((t) =>
+      t.teamNum === teamNum ? { ...t, phoneNumber: body.phoneNumber ?? null } : t
+    );
+    return ok({ success: true });
+  }
+
+  if (method === 'delete' && teamMatch) {
+    const teamNum = decodeURIComponent(teamMatch[1]);
+    store.teams = store.teams.filter((t) => t.teamNum !== teamNum);
+    return ok({ success: true });
   }
 
   const statusMatch = path.match(/^\/admin\/(\d+)\/status$/);

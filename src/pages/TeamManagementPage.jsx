@@ -160,13 +160,15 @@ function TeamManagementPage() {
                                         placeholder="010-0000-0000"
                                     />
                                 </td>
-                                <td className="team-row-actions">
-                                    <button type="button" className="team-action-button" onClick={() => handleSavePhone(team.teamNum)}>
-                                        저장
-                                    </button>
-                                    <button type="button" className="team-action-button team-action-delete" onClick={() => handleDelete(team.teamNum)}>
-                                        삭제
-                                    </button>
+                                <td>
+                                    <div className="team-row-actions">
+                                        <button type="button" className="team-action-button" onClick={() => handleSavePhone(team.teamNum)}>
+                                            저장
+                                        </button>
+                                        <button type="button" className="team-action-button team-action-delete" onClick={() => handleDelete(team.teamNum)}>
+                                            삭제
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

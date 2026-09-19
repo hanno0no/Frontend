@@ -153,3 +153,11 @@ export const mockSettings = {
   completedLimit: 9,
   waitingLimit: 12,
 };
+
+export const mockTeams = [
+  { teamNum: 'M30', phoneNumber: '010-1234-5678' },
+  { teamNum: 'H38', phoneNumber: '010-2345-6789' },
+  { teamNum: 'M17', phoneNumber: null },
+  { teamNum: 'H09', phoneNumber: '010-3456-7890' },
+  { teamNum: 'M07', phoneNumber: null },
+];
