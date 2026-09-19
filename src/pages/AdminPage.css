@@ -66,7 +66,9 @@
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 12px;
-  padding: 8px 30px 8px 12px;
+  padding: 8px 30px;
+  text-align: center;
+  text-align-last: center;
   border: 1px solid var(--color-background-hover);
   border-radius: 6px;
   font-size: 14px;
@@ -132,7 +134,7 @@
 .order-table td {
   padding: 12px 15px;
   border-bottom: 1px solid var(--color-background-hover);
-  text-align: left;
+  text-align: center;
   white-space: nowrap; /* 줄바꿈 방지 */
 }
 
@@ -191,34 +193,36 @@
 .status-cell {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
 }
 
 .status-cell .table-select {
-  width: auto;
-  flex: 1 1 auto;
+  width: 78%;
+  flex: 0 1 auto;
   min-width: 0;
 }
 
 .status-advance-button {
   flex: 0 0 auto;
-  width: 26px;
-  height: 26px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-background-hover);
-  border-radius: 6px;
-  background-color: var(--color-background);
-  color: #495057;
-  font-weight: bold;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #8a94a0;
   cursor: pointer;
-  transition: border-color 0.15s ease-in-out, color 0.15s ease-in-out;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, transform 0.15s ease-in-out;
 }
 
 .status-advance-button:hover:not(:disabled) {
-  border-color: var(--color-green);
   color: var(--color-green);
+  background-color: rgba(38, 166, 153, 0.12);
+  transform: translateX(2px);
 }
 
 .status-advance-button:disabled {

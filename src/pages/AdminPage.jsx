@@ -349,7 +349,9 @@ function AdminPage() {
                             disabled={!getNextStatus(order.state)}
                             onClick={() => handleStatusChange(order.orderId, getNextStatus(order.state))}
                         >
-                            &gt;
+                            <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 2.5 L11 8 L5 13.5" />
+                            </svg>
                         </button>
                     </div>
                 </td>
