@@ -148,6 +148,12 @@
   width: 150px;
 }
 
+/* 상태 컬럼(6번째): 재질 컬럼과 비슷한 폭으로 줄임 (이전/다음 버튼 공간 포함) */
+.order-table th:nth-child(6),
+.order-table td:nth-child(6) {
+  width: 190px;
+}
+
 .order-table th {
   background-color: var(--color-background-hover);
   font-weight: bold;
@@ -204,13 +210,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .status-cell .table-select {
-  width: 78%;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
+  width: auto;
   min-width: 0;
+  padding: 8px 26px 8px 8px;
 }
 
 .status-advance-button {
@@ -218,8 +225,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   padding: 0;
   border: none;
   border-radius: 50%;
@@ -229,9 +236,21 @@
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, transform 0.15s ease-in-out;
 }
 
+.status-advance-button svg {
+  width: 15px;
+  height: 15px;
+}
+
 .status-advance-button:hover:not(:disabled) {
   color: var(--color-green);
   background-color: rgba(38, 166, 153, 0.12);
+}
+
+.status-cell button:first-child:hover:not(:disabled) {
+  transform: translateX(-2px);
+}
+
+.status-cell button:last-child:hover:not(:disabled) {
   transform: translateX(2px);
 }
 

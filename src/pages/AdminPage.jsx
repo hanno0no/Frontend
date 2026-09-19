@@ -4,7 +4,7 @@ import apiClient, { API_BASE_URL } from '../api/axios';
 import { buildAdminViewParams, UNASSIGNED_MANAGER, UNASSIGNED_MANAGER_LABEL } from '../api/adminViewParams';
 import Header from '../components/Header';
 import { AuthContext } from '../context/AuthContext';
-import { buildStatusOptions, getStatusLabel, getAdminStatusStyle, getNextStatus, STATUS_ORDER, STATUS_STAGE } from '../constants/status';
+import { buildStatusOptions, getStatusLabel, getAdminStatusStyle, getNextStatus, getPreviousStatus, STATUS_ORDER, STATUS_STAGE } from '../constants/status';
 import { isMockMode } from '../mocks/isMock.js';
 import { eventsUrl, isSseOpen } from '../hooks/sse.js';
 import { useSSE } from '../hooks/useSSE.js';
@@ -331,6 +331,17 @@ function AdminPage() {
                 </td>
                 <td>
                     <div className="status-cell">
+                        <button
+                            type="button"
+                            className="status-advance-button"
+                            title="이전 상태로"
+                            disabled={!getPreviousStatus(order.state)}
+                            onClick={() => handleStatusChange(order.orderId, getPreviousStatus(order.state))}
+                        >
+                            <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 2.5 L5 8 L11 13.5" />
+                            </svg>
+                        </button>
                         <select
                             className={`table-select ${getAdminStatusStyle(order.state)}`}
                             value={order.state}

@@ -74,6 +74,13 @@ export function getNextStatus(code) {
   return STATUS_PROGRESSION[index + 1];
 }
 
+/** 이전 상태 코드를 반환. 첫 단계(제출 완료)나 실패 상태면 null. */
+export function getPreviousStatus(code) {
+  const index = STATUS_PROGRESSION.indexOf(code);
+  if (index <= 0) return null;
+  return STATUS_PROGRESSION[index - 1];
+}
+
 /**
  * 필터용 상태 코드 목록.
  * STATUS_ORDER 순서를 유지하고, 선택된 값이 목록에 없으면 끝에 추가.
