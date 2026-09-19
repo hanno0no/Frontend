@@ -4,7 +4,7 @@ import apiClient, { API_BASE_URL } from '../api/axios';
 import { buildAdminViewParams, UNASSIGNED_MANAGER, UNASSIGNED_MANAGER_LABEL } from '../api/adminViewParams';
 import Header from '../components/Header';
 import { AuthContext } from '../context/AuthContext';
-import { buildStatusOptions, getStatusLabel, getAdminStatusStyle, STATUS_ORDER, STATUS_STAGE } from '../constants/status';
+import { buildStatusOptions, getStatusLabel, getAdminStatusStyle, getNextStatus, STATUS_ORDER, STATUS_STAGE } from '../constants/status';
 import { isMockMode } from '../mocks/isMock.js';
 import { eventsUrl, isSseOpen } from '../hooks/sse.js';
 import { useSSE } from '../hooks/useSSE.js';
@@ -330,17 +330,28 @@ function AdminPage() {
                     </select>
                 </td>
                 <td>
-                    <select
-                        className={`table-select ${getAdminStatusStyle(order.state)}`}
-                        value={order.state}
-                        onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
-                    >
-                        {statusList.map(statusValue => (
-                            <option key={statusValue} value={statusValue}>
-                                {getStatusLabel(statusValue)}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="status-cell">
+                        <select
+                            className={`table-select ${getAdminStatusStyle(order.state)}`}
+                            value={order.state}
+                            onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
+                        >
+                            {statusList.map(statusValue => (
+                                <option key={statusValue} value={statusValue}>
+                                    {getStatusLabel(statusValue)}
+                                </option>
+                            ))}
+                        </select>
+                        <button
+                            type="button"
+                            className="status-advance-button"
+                            title="다음 상태로"
+                            disabled={!getNextStatus(order.state)}
+                            onClick={() => handleStatusChange(order.orderId, getNextStatus(order.state))}
+                        >
+                            &gt;
+                        </button>
+                    </div>
                 </td>
                 <td>
                     <button

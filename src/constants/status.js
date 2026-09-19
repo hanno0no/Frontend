@@ -64,6 +64,16 @@ export function getAdminStatusStyle(code) {
   }
 }
 
+/** 실패를 제외한 정상 진행 순서. "다음 상태로" 버튼에서 사용. */
+export const STATUS_PROGRESSION = STATUS_ORDER.filter((code) => code !== 'failed');
+
+/** 다음 상태 코드를 반환. 마지막 단계(수령 완료)나 실패 상태면 null. */
+export function getNextStatus(code) {
+  const index = STATUS_PROGRESSION.indexOf(code);
+  if (index === -1 || index === STATUS_PROGRESSION.length - 1) return null;
+  return STATUS_PROGRESSION[index + 1];
+}
+
 /**
  * 필터용 상태 코드 목록.
  * STATUS_ORDER 순서를 유지하고, 선택된 값이 목록에 없으면 끝에 추가.
