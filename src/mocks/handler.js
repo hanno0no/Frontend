@@ -42,7 +42,15 @@ function resolvePath(config) {
   if (extra) {
     const entries = extra instanceof URLSearchParams ? extra.entries() : Object.entries(extra);
     for (const [key, value] of entries) {
-      if (value != null && value !== '') parsed.searchParams.set(key, String(value));
+      if (value == null || value === '') continue;
+      // 배열 값(예: 복수 선택된 status)은 axios가 실제로 하듯 반복 쿼리 파라미터로 변환한다.
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          if (v != null && v !== '') parsed.searchParams.append(key, String(v));
+        });
+      } else {
+        parsed.searchParams.set(key, String(value));
+      }
     }
   }
   const path = (parsed.pathname.replace(/^\/hnn/, '') || '/').replace(/\/$/, '') || '/';
@@ -50,12 +58,12 @@ function resolvePath(config) {
 }
 
 function filterOrders(orders, searchParams) {
-  const status = searchParams.get('status');
+  const statuses = searchParams.getAll('status');
   const manager = searchParams.get('manager');
   const material = searchParams.get('material');
   const teamNum = searchParams.get('teamNum');
   return orders.filter((order) => {
-    if (status && order.state !== status) return false;
+    if (statuses.length > 0 && !statuses.includes(order.state)) return false;
     if (manager === 'unassigned') {
       if (order.admin) return false;
     } else if (manager && order.admin !== manager) {

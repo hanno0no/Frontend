@@ -35,6 +35,26 @@
   color: #495057;
 }
 
+.status-filter-group {
+  align-items: flex-start;
+}
+
+.status-filter-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.status-filter-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  color: #495057;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .filter-group select,
 .table-select,
 .page-size-group select {

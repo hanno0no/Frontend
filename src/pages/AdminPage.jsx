@@ -1,15 +1,25 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, useContext } from 'react';
 
 import apiClient, { API_BASE_URL } from '../api/axios';
 import { buildAdminViewParams, UNASSIGNED_MANAGER, UNASSIGNED_MANAGER_LABEL } from '../api/adminViewParams';
 import Header from '../components/Header';
-import { buildStatusOptions, getStatusLabel, STATUS_ORDER } from '../constants/status';
+import { AuthContext } from '../context/AuthContext';
+import { buildStatusOptions, getStatusLabel, getAdminStatusStyle, STATUS_ORDER, STATUS_STAGE } from '../constants/status';
 import { isMockMode } from '../mocks/isMock.js';
 import { eventsUrl, isSseOpen } from '../hooks/sse.js';
 import { useSSE } from '../hooks/useSSE.js';
 import './AdminPage.css';
 
+/** 담당자 select에 적용할 배지 스타일: 내 담당 업무 vs 미배정 vs 그 외 */
+function getAssigneeStyle(admin, myUsername) {
+    if (!admin) return 'status-badge status-badge--muted';
+    if (myUsername && admin === myUsername) return 'status-badge status-badge--mine';
+    return '';
+}
+
 function AdminPage() {
+    const { user } = useContext(AuthContext);
+    const myUsername = user?.username;
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -20,12 +30,13 @@ function AdminPage() {
     const [materialList, setMaterialList] = useState([]);
     const [teamList, setTeamList] = useState([]);
 
-    const [statusFilter, setStatusFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState([]);
     const [adminFilter, setAdminFilter] = useState('all');
     const [materialFilter, setMaterialFilter] = useState('all');
     const [teamFilter, setTeamFilter] = useState('all');
     const [hiddenOrderIds, setHiddenOrderIds] = useState(new Set());
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [prioritizeMine, setPrioritizeMine] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
 
@@ -120,16 +131,22 @@ function AdminPage() {
     };
 
     const isFilterActive =
-        statusFilter !== 'all' ||
+        statusFilter.length > 0 ||
         adminFilter !== 'all' ||
         materialFilter !== 'all' ||
         teamFilter !== 'all';
 
     const handleResetFilters = () => {
-        setStatusFilter('all');
+        setStatusFilter([]);
         setAdminFilter('all');
         setMaterialFilter('all');
         setTeamFilter('all');
+    };
+
+    const handleStatusFilterToggle = (status, checked) => {
+        setStatusFilter((prev) => (
+            checked ? [...prev, status] : prev.filter((s) => s !== status)
+        ));
     };
 
     const filterOptions = useMemo(() => {
@@ -161,6 +178,20 @@ function AdminPage() {
     };
 
     const sortedOrders = useMemo(() => {
+        // "내 담당 업무 먼저 보기": 처리 필요 없는 상태(실패/출력완료/수령완료)는 숨기고, 진행중인 것만
+        // 담당자가 나인 것 → 그중 먼저 접수된 것(orderId는 auto-increment PK라 접수 순서와 동일) 순으로 정렬.
+        // 켜져 있는 동안은 컬럼 클릭 정렬보다 우선한다.
+        if (prioritizeMine && myUsername) {
+            const visible = orders.filter((order) => STATUS_STAGE[order.state] === 'in_progress');
+
+            return [...visible].sort((a, b) => {
+                const aMine = a.admin === myUsername ? 0 : 1;
+                const bMine = b.admin === myUsername ? 0 : 1;
+                if (aMine !== bMine) return aMine - bMine;
+                return a.orderId - b.orderId;
+            });
+        }
+
         if (!sortConfig.key) return orders;
 
         const sign = sortConfig.direction === 'asc' ? 1 : -1;
@@ -183,7 +214,7 @@ function AdminPage() {
         };
 
         return [...orders].sort(compare);
-    }, [orders, sortConfig]);
+    }, [orders, sortConfig, prioritizeMine, myUsername]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -288,7 +319,7 @@ function AdminPage() {
                 <td>{order.fileName || '-'}</td>
                 <td>
                     <select
-                        className="table-select"
+                        className={`table-select ${getAssigneeStyle(order.admin, myUsername)}`}
                         value={order.admin || UNASSIGNED_MANAGER}
                         onChange={(e) => handleManagerChange(order.orderId, e.target.value)}
                     >
@@ -300,7 +331,7 @@ function AdminPage() {
                 </td>
                 <td>
                     <select
-                        className="table-select"
+                        className={`table-select ${getAdminStatusStyle(order.state)}`}
                         value={order.state}
                         onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
                     >
@@ -334,15 +365,20 @@ function AdminPage() {
                 {/* 필터링 UI */}
                 <div className="filter-container">
                     <div className="filter-groups">
-                        <div className="filter-group">
-                            <label htmlFor="status-filter">상태별 조회:</label>
-                            <select id="status-filter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                        <div className="filter-group status-filter-group">
+                            <label>상태별 조회:</label>
+                            <div className="status-filter-checkboxes">
                                 {filterOptions.statuses.map(status => (
-                                    <option key={status} value={status}>
-                                        {status === 'all' ? '전체' : getStatusLabel(status)}
-                                    </option>
+                                    <label key={status} className="status-filter-checkbox">
+                                        <input
+                                            type="checkbox"
+                                            checked={statusFilter.includes(status)}
+                                            onChange={(e) => handleStatusFilterToggle(status, e.target.checked)}
+                                        />
+                                        {getStatusLabel(status)}
+                                    </label>
                                 ))}
-                            </select>
+                            </div>
                         </div>
                         <div className="filter-group">
                             <label htmlFor="admin-filter">담당자별 조회:</label>
@@ -354,6 +390,18 @@ function AdminPage() {
                                 ))}
                             </select>
                         </div>
+                        {myUsername && (
+                            <div className="filter-group">
+                                <label className="status-filter-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        checked={prioritizeMine}
+                                        onChange={(e) => setPrioritizeMine(e.target.checked)}
+                                    />
+                                    내 담당 업무 먼저 보기
+                                </label>
+                            </div>
+                        )}
                         <div className="filter-group">
                             <label htmlFor="material-filter">재질별 조회:</label>
                             <select id="material-filter" value={materialFilter} onChange={e => setMaterialFilter(e.target.value)}>
