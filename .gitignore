@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# git worktrees (SDD 작업 공간)
+.worktrees/
