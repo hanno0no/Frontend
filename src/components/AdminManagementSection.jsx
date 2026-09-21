@@ -1,16 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import apiClient from '../api/axios.js';
+import { AuthContext } from '../context/AuthContext';
 import './AdminManagementSection.css';
 
 const WORK_AREAS = ['접수', '디자인', '출력', '기타'];
 
 function AdminManagementSection() {
+    const { user } = useContext(AuthContext);
+    const myUsername = user?.username;
+
     const [admins, setAdmins] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const [newUserName, setNewUserName] = useState('');
     const [newWorkAreas, setNewWorkAreas] = useState([]);
+
+    const [editingId, setEditingId] = useState(null);
+    const [editUserName, setEditUserName] = useState('');
+    const [editPassword, setEditPassword] = useState('');
+    const [editWorkAreas, setEditWorkAreas] = useState([]);
 
     const fetchAdmins = useCallback(async () => {
         setIsLoading(true);
@@ -53,8 +62,49 @@ function AdminManagementSection() {
         }
     };
 
+    const startEdit = (admin) => {
+        setEditingId(admin.adminId);
+        setEditUserName(admin.userName);
+        setEditPassword('');
+        setEditWorkAreas(admin.workAreas);
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditPassword('');
+    };
+
+    const handleSaveEdit = async (adminId) => {
+        const body = { userName: editUserName.trim(), workAreas: editWorkAreas };
+        if (editPassword.trim()) {
+            body.password = editPassword.trim();
+        }
+        try {
+            await apiClient.patch(`/admin/admins/${adminId}`, body);
+            setEditingId(null);
+            setEditPassword('');
+            fetchAdmins();
+        } catch (err) {
+            console.error('관리자 수정 에러:', err);
+            alert(err.response?.data?.message || '관리자 수정에 실패했습니다.');
+        }
+    };
+
+    const handleDelete = async (admin) => {
+        if (!window.confirm(`${admin.userName} 계정을 삭제하시겠습니까?`)) return;
+        try {
+            await apiClient.delete(`/admin/admins/${admin.adminId}`);
+            fetchAdmins();
+        } catch (err) {
+            console.error('관리자 삭제 에러:', err);
+            alert(err.response?.data?.message || '관리자 삭제에 실패했습니다.');
+        }
+    };
+
     if (isLoading) return <div>로딩 중...</div>;
     if (error) return <div className="error-message">{error}</div>;
+
+    const isLastAdmin = admins.length <= 1;
 
     return (
         <div className="admin-management-section">
@@ -101,24 +151,83 @@ function AdminManagementSection() {
                         <tr>
                             <td colSpan="4" className="empty-cell">등록된 관리자가 없습니다.</td>
                         </tr>
-                    ) : admins.map((admin) => (
-                        <tr key={admin.adminId}>
-                            <td>{admin.userName}</td>
-                            <td>
-                                {admin.workAreas.length > 0
-                                    ? admin.workAreas.map((area) => (
-                                        <span key={area} className="status-badge status-badge--neutral work-area-badge">{area}</span>
-                                    ))
-                                    : '-'}
-                            </td>
-                            <td>
-                                {!admin.passwordSet && (
-                                    <span className="status-badge status-badge--muted">비밀번호 미설정</span>
-                                )}
-                            </td>
-                            <td></td>
-                        </tr>
-                    ))}
+                    ) : admins.map((admin) => {
+                        const isEditing = editingId === admin.adminId;
+                        const isMe = admin.userName === myUsername;
+                        return (
+                            <tr key={admin.adminId}>
+                                <td>
+                                    {isEditing ? (
+                                        <input
+                                            type="text"
+                                            className="team-phone-input"
+                                            value={editUserName}
+                                            onChange={(e) => setEditUserName(e.target.value)}
+                                        />
+                                    ) : admin.userName}
+                                </td>
+                                <td>
+                                    {isEditing ? (
+                                        <div className="work-area-checkboxes">
+                                            {WORK_AREAS.map((area) => (
+                                                <label key={area} className="work-area-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={editWorkAreas.includes(area)}
+                                                        onChange={() => toggleWorkArea(editWorkAreas, setEditWorkAreas, area)}
+                                                    />
+                                                    {area}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        admin.workAreas.length > 0
+                                            ? admin.workAreas.map((area) => (
+                                                <span key={area} className="status-badge status-badge--neutral work-area-badge">{area}</span>
+                                            ))
+                                            : '-'
+                                    )}
+                                </td>
+                                <td>
+                                    {!admin.passwordSet && (
+                                        <span className="status-badge status-badge--muted">비밀번호 미설정</span>
+                                    )}
+                                    {isEditing && isMe && (
+                                        <input
+                                            type="password"
+                                            className="team-phone-input"
+                                            value={editPassword}
+                                            onChange={(e) => setEditPassword(e.target.value)}
+                                            placeholder="변경 시에만 입력"
+                                        />
+                                    )}
+                                </td>
+                                <td>
+                                    <div className="team-row-actions">
+                                        {isEditing ? (
+                                            <>
+                                                <button type="button" className="team-action-button" onClick={() => handleSaveEdit(admin.adminId)}>저장</button>
+                                                <button type="button" className="team-action-button" onClick={cancelEdit}>취소</button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button type="button" className="team-action-button" onClick={() => startEdit(admin)}>수정</button>
+                                                <button
+                                                    type="button"
+                                                    className="team-action-button team-action-delete"
+                                                    disabled={isMe || isLastAdmin}
+                                                    title={isMe ? '본인 계정은 삭제할 수 없습니다' : (isLastAdmin ? '마지막 남은 관리자 계정은 삭제할 수 없습니다' : undefined)}
+                                                    onClick={() => handleDelete(admin)}
+                                                >
+                                                    삭제
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>
