@@ -277,6 +277,10 @@ Admin 드롭다운에 사용. FE 라벨은 `getStatusLabel()`.
 
 실패 시 FE는 catch로 오류 메시지 표시. 401 JSON 바디·인터셉터는 🔄.
 
+**Response `428`** — 비밀번호 미설정 계정
+
+대상 계정에 비밀번호가 설정되지 않은 경우 토큰 대신 `428 Precondition Required`를 반환합니다. FE는 이를 감지해 최초 로그인 "비밀번호 설정" 폼을 표시합니다 (`POST /admin/setup-password` 참고).
+
 ---
 
 ## 5. 관리자 — 주문
@@ -529,7 +533,7 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
 
 ## 8. 관리자 — 계정 관리
 
-### `POST /admin/signup` 🔄 — 관리자 계정 생성
+### `POST /admin/signup` ✅ — 관리자 계정 생성
 
 ⚠️ **변경:** v0.5부터 인증이 필요합니다. (이전: 공개)
 
@@ -538,9 +542,11 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
 ```json
 // Request
 { "userName": "admin", "workAreas": ["디자인", "출력"] }
+```
 
-// Response 201
-{ "adminId": 1, "userName": "admin", "workAreas": ["디자인", "출력"], "passwordSet": false }
+```
+// Response 200 (text/plain)
+관리자 계정이 성공적으로 생성되었습니다. ID: 5
 ```
 
 **Request**
@@ -552,18 +558,13 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
 
 **Response**
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| `adminId` | `number` | 관리자 ID |
-| `userName` | `string` | 관리자명 |
-| `workAreas` | `string[]` | 담당 영역 |
-| `passwordSet` | `boolean` | 비밀번호 설정 여부 (초기값: `false`) |
+`200`, 본문은 JSON이 아닌 평문(plain text) 성공 메시지 (생성된 `adminId` 포함).
 
 계정은 비밀번호 없이 생성되며, 사용자는 `POST /admin/setup-password`로 처음 비밀번호를 설정합니다.
 
 ---
 
-### `POST /admin/setup-password` 🔄 — 최초 비밀번호 설정
+### `POST /admin/setup-password` ✅ — 최초 비밀번호 설정
 
 **인증:** 불필요 (공개)
 
@@ -586,7 +587,7 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
 
 ---
 
-### `GET /admin/admins` 🔄 — 모든 관리자 조회
+### `GET /admin/admins` ✅ — 모든 관리자 조회
 
 **인증:** 필요
 
@@ -603,7 +604,7 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
   {
     "adminId": 2,
     "userName": "임시계정",
-    "workAreas": ["검수"],
+    "workAreas": ["접수"],
     "passwordSet": false
   }
 ]
@@ -618,7 +619,7 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
 
 ---
 
-### `PATCH /admin/admins/{id}` 🔄 — 관리자 정보 수정
+### `PATCH /admin/admins/{id}` ✅ — 관리자 정보 수정
 
 **인증:** 필요
 
@@ -626,8 +627,7 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
 // Request (선택적 필드)
 { "userName": "newName", "workAreas": ["디자인"], "password": "newPassword123" }
 
-// Response 200
-{ "adminId": 1, "userName": "newName", "workAreas": ["디자인"], "passwordSet": true }
+// Response 200 (본문 없음)
 ```
 
 | 필드 | 타입 | 필수 | 설명 |
@@ -638,13 +638,13 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
 
 ---
 
-### `DELETE /admin/admins/{id}` 🔄 — 관리자 계정 삭제
+### `DELETE /admin/admins/{id}` ✅ — 관리자 계정 삭제
 
 **인증:** 필요
 
 ```
 DELETE /admin/admins/2
-Response 204 No Content
+Response 200 (본문 없음)
 ```
 
 **제약:**
@@ -687,11 +687,11 @@ path/DTO는 BE 구현 시 확정. FE 라우트·페이지 없음.
 | GET/PATCH | `/admin/setting` | ✅ | limit 🔄 |
 | POST | `/admin/create/*` | ✅ | |
 | DELETE | `/admin/delete/{type}/{id}` | ✅ | |
-| POST | `/admin/signup` | 🔄 | ⚠️ v0.5부터 인증 필요 (이전: 공개) |
-| POST | `/admin/setup-password` | 🔄 | 공개. 최초 비밀번호 설정 후 토큰 반환 |
-| GET | `/admin/admins` | 🔄 | 모든 관리자 조회 |
-| PATCH | `/admin/admins/{id}` | 🔄 | 정보 수정 (password는 본인만) |
-| DELETE | `/admin/admins/{id}` | 🔄 | 본인·마지막 관리자 삭제 불가 |
+| POST | `/admin/signup` | ✅ | ⚠️ v0.5부터 인증 필요 (이전: 공개) |
+| POST | `/admin/setup-password` | ✅ | 공개. 최초 비밀번호 설정 후 토큰 반환 |
+| GET | `/admin/admins` | ✅ | 모든 관리자 조회 |
+| PATCH | `/admin/admins/{id}` | ✅ | 정보 수정 (password는 본인만) |
+| DELETE | `/admin/admins/{id}` | ✅ | 본인·마지막 관리자 삭제 불가 |
 | GET | `/events` | 🔄 | |
 | GET | `/admin/stats` | 🔄 | |
 | PATCH | `/admin/{id}/material` | 🔄 | |
@@ -728,3 +728,4 @@ path/DTO는 BE 구현 시 확정. FE 라우트·페이지 없음.
 | v0.2 | 2026-07-21 | 기획서 §5.3 상태 코드 |
 | v0.3 | 2026-07-21 | BE·FE 개발계획 대조 |
 | v0.4 | 2026-07-21 | **현재 프론트 기준 전면 갱신** (경로·상태·접수 JSON 반영, 현황 표 정리) |
+| v0.5 | 2026-09-19 | 관리자 계정 관리 기능 반영 (`/admin/signup` 인증 필요·200 평문 응답, `/admin/setup-password`, `/admin/admins` CRUD, `/admin/login` 428 최초 로그인 분기) |

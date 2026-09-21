@@ -19,6 +19,7 @@ function AdminManagementSection() {
     const [editingId, setEditingId] = useState(null);
     const [editUserName, setEditUserName] = useState('');
     const [editPassword, setEditPassword] = useState('');
+    const [editConfirmPassword, setEditConfirmPassword] = useState('');
     const [editWorkAreas, setEditWorkAreas] = useState([]);
 
     const fetchAdmins = useCallback(async () => {
@@ -66,26 +67,34 @@ function AdminManagementSection() {
         setEditingId(admin.adminId);
         setEditUserName(admin.userName);
         setEditPassword('');
+        setEditConfirmPassword('');
         setEditWorkAreas(admin.workAreas);
     };
 
     const cancelEdit = () => {
         setEditingId(null);
         setEditPassword('');
+        setEditConfirmPassword('');
     };
 
     const handleSaveEdit = async (adminId) => {
+        const trimmedPassword = editPassword.trim();
+        if (trimmedPassword && trimmedPassword !== editConfirmPassword.trim()) {
+            alert('비밀번호가 일치하지 않습니다.');
+            return;
+        }
         const body = { userName: editUserName.trim(), workAreas: editWorkAreas };
-        if (editPassword.trim()) {
-            body.password = editPassword.trim();
+        if (trimmedPassword) {
+            body.password = trimmedPassword;
         }
         try {
             await apiClient.patch(`/admin/admins/${adminId}`, body);
             setEditingId(null);
             setEditPassword('');
+            setEditConfirmPassword('');
             fetchAdmins();
         } catch (err) {
-            console.error('관리자 수정 에러:', err);
+            console.error('관리자 수정 에러:', err.response?.status, err.response?.data?.message);
             alert(err.response?.data?.message || '관리자 수정에 실패했습니다.');
         }
     };
@@ -193,13 +202,22 @@ function AdminManagementSection() {
                                         <span className="status-badge status-badge--muted">비밀번호 미설정</span>
                                     )}
                                     {isEditing && isMe && (
-                                        <input
-                                            type="password"
-                                            className="team-phone-input"
-                                            value={editPassword}
-                                            onChange={(e) => setEditPassword(e.target.value)}
-                                            placeholder="변경 시에만 입력"
-                                        />
+                                        <>
+                                            <input
+                                                type="password"
+                                                className="team-phone-input"
+                                                value={editPassword}
+                                                onChange={(e) => setEditPassword(e.target.value)}
+                                                placeholder="변경 시에만 입력"
+                                            />
+                                            <input
+                                                type="password"
+                                                className="team-phone-input"
+                                                value={editConfirmPassword}
+                                                onChange={(e) => setEditConfirmPassword(e.target.value)}
+                                                placeholder="비밀번호 확인"
+                                            />
+                                        </>
                                     )}
                                 </td>
                                 <td>

@@ -171,6 +171,16 @@
   border-color: var(--color-green);
 }
 
+.team-action-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.team-action-button:disabled:hover {
+  color: #495057;
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
 .team-action-delete:hover {
   color: var(--color-red);
   border-color: var(--color-red);

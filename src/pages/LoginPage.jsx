@@ -33,7 +33,7 @@ function LoginPage() {
       login(response.data);
       navigate(from, { replace: true });
     } catch (err) {
-      console.error('로그인 실패:', err);
+      console.error('로그인 실패:', err.response?.status, err.response?.data?.message);
       if (err.response?.status === 428) {
         setNeedsSetup(true);
         setError('');
@@ -63,7 +63,7 @@ function LoginPage() {
       login(response.data);
       navigate(from, { replace: true });
     } catch (err) {
-      console.error('비밀번호 설정 실패:', err);
+      console.error('비밀번호 설정 실패:', err.response?.status, err.response?.data?.message);
       setError(err.response?.data?.message || '비밀번호 설정에 실패했습니다.');
     } finally {
       setIsLoading(false);
