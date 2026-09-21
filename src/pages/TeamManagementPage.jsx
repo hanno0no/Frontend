@@ -2,11 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../api/axios.js';
 import Header from '../components/Header.jsx';
+import AdminManagementSection from '../components/AdminManagementSection.jsx';
 import './TeamManagementPage.css';
 
 const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
 
 function TeamManagementPage() {
+    const [activeTab, setActiveTab] = useState('team');
+
     const [teams, setTeams] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -100,17 +103,12 @@ function TeamManagementPage() {
         }
     };
 
-    const renderContent = () => {
+    const renderTeamContent = () => {
         if (isLoading) return <div>로딩 중...</div>;
         if (error) return <div className="error-message">{error}</div>;
 
         return (
-            <div className="team-page-card">
-                <div className="team-page-header">
-                    <h1>팀 관리</h1>
-                    <Link to="/admin" className="team-header-link">목록으로</Link>
-                </div>
-
+            <>
                 <form className="team-create-form" onSubmit={handleCreate}>
                     <div className="form-field">
                         <label htmlFor="new-team-num">팀 번호</label>
@@ -174,15 +172,39 @@ function TeamManagementPage() {
                         ))}
                     </tbody>
                 </table>
-            </div>
+            </>
         );
     };
 
     return (
         <div className="page-container">
-            <Header onRefresh={handleRefresh} isRefreshing={isRefreshing} />
+            <Header onRefresh={activeTab === 'team' ? handleRefresh : undefined} isRefreshing={activeTab === 'team' && isRefreshing} />
             <div className="main-content-area">
-                {renderContent()}
+                <div className="team-page-card">
+                    <div className="team-page-header">
+                        <h1>{activeTab === 'team' ? '팀 관리' : '관리자 관리'}</h1>
+                        <Link to="/admin" className="team-header-link">목록으로</Link>
+                    </div>
+
+                    <div className="management-tabs">
+                        <button
+                            type="button"
+                            className={`management-tab-button${activeTab === 'team' ? ' active' : ''}`}
+                            onClick={() => setActiveTab('team')}
+                        >
+                            팀 관리
+                        </button>
+                        <button
+                            type="button"
+                            className={`management-tab-button${activeTab === 'admin' ? ' active' : ''}`}
+                            onClick={() => setActiveTab('admin')}
+                        >
+                            관리자 관리
+                        </button>
+                    </div>
+
+                    {activeTab === 'team' ? renderTeamContent() : <AdminManagementSection />}
+                </div>
             </div>
         </div>
     );

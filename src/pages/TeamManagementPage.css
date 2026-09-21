@@ -32,6 +32,35 @@
   color: var(--color-green);
 }
 
+.management-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.management-tab-button {
+  padding: 8px 16px;
+  border: 1px solid var(--color-background-hover);
+  border-radius: 6px;
+  background-color: var(--color-background);
+  color: #495057;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.management-tab-button:hover {
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+.management-tab-button.active {
+  background-color: var(--color-green);
+  border-color: var(--color-green);
+  color: #fff;
+}
+
 .team-create-form {
   display: flex;
   align-items: flex-end;
