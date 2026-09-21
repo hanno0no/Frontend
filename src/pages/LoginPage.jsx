@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react';
-// Link를 react-router-dom에서 import 합니다.
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import apiClient from '../api/axios';
@@ -10,6 +9,9 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [needsSetup, setNeedsSetup] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,30 +28,90 @@ function LoginPage() {
     setIsLoading(true);
 
     try {
-      const payload = {
-        username: username,
-        password: password
-      };
-      
+      const payload = { username, password };
       const response = await apiClient.post('/admin/login', payload);
-      
       login(response.data);
-      
       navigate(from, { replace: true });
-
     } catch (err) {
       console.error('로그인 실패:', err);
-      setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+      if (err.response?.status === 428) {
+        setNeedsSetup(true);
+        setError('');
+      } else {
+        setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSetupPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!newPassword || newPassword !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await apiClient.post('/admin/setup-password', {
+        userName: username,
+        newPassword,
+      });
+      login(response.data);
+      navigate(from, { replace: true });
+    } catch (err) {
+      console.error('비밀번호 설정 실패:', err);
+      setError(err.response?.data?.message || '비밀번호 설정에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (needsSetup) {
+    return (
+      <div className="login-container">
+        <div className="login-card">
+          <Link to="/" className="login-title-link">
+            <h2>HNN</h2>
+          </Link>
+          <p>처음 로그인하시네요. 사용할 비밀번호를 설정해주세요.</p>
+          <form onSubmit={handleSetupPassword}>
+            <div className="form-group">
+              <label htmlFor="new-password">새 비밀번호</label>
+              <input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="confirm-password">비밀번호 확인</label>
+              <input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && <p className="error-message">{error}</p>}
+            <button type="submit" className="login-button" disabled={isLoading}>
+              {isLoading ? '설정 중...' : '비밀번호 설정'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="login-container">
       <div className="login-card">
-        {/* ✅ h2 태그를 Link 컴포넌트로 감싸줍니다. */}
-        {/* to="/"는 메인 페이지(DashboardPage)로 이동하라는 의미입니다. */}
         <Link to="/" className="login-title-link">
           <h2>HNN</h2>
         </Link>
