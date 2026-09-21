@@ -1,0 +1,19 @@
+.work-area-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.work-area-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  color: #495057;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.work-area-badge {
+  margin-right: 4px;
+}
