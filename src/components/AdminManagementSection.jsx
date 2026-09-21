@@ -3,7 +3,7 @@ import apiClient from '../api/axios.js';
 import { AuthContext } from '../context/AuthContext';
 import './AdminManagementSection.css';
 
-const WORK_AREAS = ['접수', '디자인', '출력', '기타'];
+const WORK_AREAS = ['접수', '디자인', '출력', '3D프린트', '기타'];
 
 function AdminManagementSection() {
     const { user } = useContext(AuthContext);
