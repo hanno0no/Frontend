@@ -527,7 +527,133 @@ data: {"type":"orders_updated","timestamp":"2026-07-13T14:30:00"}
 
 ---
 
-## 8. 팀 관리 🔄
+## 8. 관리자 — 계정 관리
+
+### `POST /admin/signup` 🔄 — 관리자 계정 생성
+
+⚠️ **변경:** v0.5부터 인증이 필요합니다. (이전: 공개)
+
+**인증:** 필요
+
+```json
+// Request
+{ "userName": "admin", "workAreas": ["디자인", "출력"] }
+
+// Response 201
+{ "adminId": 1, "userName": "admin", "workAreas": ["디자인", "출력"], "passwordSet": false }
+```
+
+**Request**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `userName` | `string` | 관리자명 |
+| `workAreas` | `string[]` | 담당 영역 (리스트) |
+
+**Response**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `adminId` | `number` | 관리자 ID |
+| `userName` | `string` | 관리자명 |
+| `workAreas` | `string[]` | 담당 영역 |
+| `passwordSet` | `boolean` | 비밀번호 설정 여부 (초기값: `false`) |
+
+계정은 비밀번호 없이 생성되며, 사용자는 `POST /admin/setup-password`로 처음 비밀번호를 설정합니다.
+
+---
+
+### `POST /admin/setup-password` 🔄 — 최초 비밀번호 설정
+
+**인증:** 불필요 (공개)
+
+```json
+// Request
+{ "userName": "admin", "newPassword": "password123" }
+
+// Response 200
+{ "accessToken": "eyJ..." }
+```
+
+**Request**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `userName` | `string` | 관리자명 |
+| `newPassword` | `string` | 설정할 비밀번호 |
+
+비밀번호가 없는 계정에서만 호출 가능합니다. 설정 후 로그인 토큰을 반환합니다.
+
+---
+
+### `GET /admin/admins` 🔄 — 모든 관리자 조회
+
+**인증:** 필요
+
+모든 관리자 계정을 조회합니다.
+
+```json
+[
+  {
+    "adminId": 1,
+    "userName": "admin",
+    "workAreas": ["디자인", "출력"],
+    "passwordSet": true
+  },
+  {
+    "adminId": 2,
+    "userName": "임시계정",
+    "workAreas": ["검수"],
+    "passwordSet": false
+  }
+]
+```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `adminId` | `number` | 관리자 ID |
+| `userName` | `string` | 관리자명 |
+| `workAreas` | `string[]` | 담당 영역 |
+| `passwordSet` | `boolean` | 비밀번호 설정 여부 (암호 해시는 노출 안 함) |
+
+---
+
+### `PATCH /admin/admins/{id}` 🔄 — 관리자 정보 수정
+
+**인증:** 필요
+
+```json
+// Request (선택적 필드)
+{ "userName": "newName", "workAreas": ["디자인"], "password": "newPassword123" }
+
+// Response 200
+{ "adminId": 1, "userName": "newName", "workAreas": ["디자인"], "passwordSet": true }
+```
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| `userName` | `string` | 아니오 | 관리자명 |
+| `workAreas` | `string[]` | 아니오 | 담당 영역 |
+| `password` | `string` | 아니오 | 비밀번호 (본인만 변경 가능; 다른 id는 403) |
+
+---
+
+### `DELETE /admin/admins/{id}` 🔄 — 관리자 계정 삭제
+
+**인증:** 필요
+
+```
+DELETE /admin/admins/2
+Response 204 No Content
+```
+
+**제약:**
+- 본인 계정은 삭제 불가 (400)
+- 마지막 남은 관리자 계정은 삭제 불가 (400)
+
+---
+
+## 9. 팀 관리 🔄
 
 | Method | Path | 설명 |
 |--------|------|------|
@@ -561,11 +687,19 @@ path/DTO는 BE 구현 시 확정. FE 라우트·페이지 없음.
 | GET/PATCH | `/admin/setting` | ✅ | limit 🔄 |
 | POST | `/admin/create/*` | ✅ | |
 | DELETE | `/admin/delete/{type}/{id}` | ✅ | |
+| POST | `/admin/signup` | 🔄 | ⚠️ v0.5부터 인증 필요 (이전: 공개) |
+| POST | `/admin/setup-password` | 🔄 | 공개. 최초 비밀번호 설정 후 토큰 반환 |
+| GET | `/admin/admins` | 🔄 | 모든 관리자 조회 |
+| PATCH | `/admin/admins/{id}` | 🔄 | 정보 수정 (password는 본인만) |
+| DELETE | `/admin/admins/{id}` | 🔄 | 본인·마지막 관리자 삭제 불가 |
 | GET | `/events` | 🔄 | |
 | GET | `/admin/stats` | 🔄 | |
 | PATCH | `/admin/{id}/material` | 🔄 | |
 | PATCH | `/admin/{id}/hide` | 🔄 | |
-| * | `/admin/teams` | 🔄 | |
+| GET | `/admin/teams` | 🔄 | 목록 |
+| POST | `/admin/teams` | 🔄 | 등록 |
+| PATCH | `/admin/teams/{teamNum}` | 🔄 | 수정 |
+| DELETE | `/admin/teams/{teamNum}` | 🔄 | 삭제 |
 
 **삭제:** `GET /checkStatus/view`
 
