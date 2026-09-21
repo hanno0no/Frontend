@@ -7,6 +7,7 @@ import {
   mockStatusList,
   mockTeamStatus,
   mockTeams,
+  mockAdmins,
 } from './data.js';
 
 /** 런타임에 변경 가능한 in-memory store */
@@ -14,6 +15,7 @@ const store = {
   orders: structuredClone(mockOrders),
   settings: structuredClone(mockSettings),
   teams: structuredClone(mockTeams),
+  admins: structuredClone(mockAdmins),
   nextOrderId: 9,
   nextMessageId: 4,
   nextMaterialId: 8,
@@ -113,6 +115,53 @@ export async function handleMockRequest(config) {
 
   if (method === 'get' && path === '/register/getadminname') {
     return ok(mockAdminList);
+  }
+
+  // --- Admin management ---
+  if (method === 'get' && path === '/admin/admins') {
+    return ok(store.admins);
+  }
+
+  if (method === 'post' && path === '/admin/signup') {
+    const body = getBody(config);
+    if (store.admins.some((a) => a.userName === body.userName)) {
+      return { data: { message: '이미 존재하는 아이디입니다.' }, status: 400, statusText: 'Bad Request' };
+    }
+    const nextId = Math.max(0, ...store.admins.map((a) => a.adminId)) + 1;
+    store.admins = [...store.admins, {
+      adminId: nextId,
+      userName: body.userName,
+      workAreas: body.workAreas ?? [],
+      passwordSet: false,
+    }];
+    return ok({ success: true });
+  }
+
+  const adminMatch = path.match(/^\/admin\/admins\/(\d+)$/);
+  if (method === 'patch' && adminMatch) {
+    const adminId = Number(adminMatch[1]);
+    const body = getBody(config);
+    store.admins = store.admins.map((a) => (a.adminId === adminId
+      ? {
+          ...a,
+          userName: body.userName || a.userName,
+          workAreas: body.workAreas ?? a.workAreas,
+          passwordSet: body.password ? true : a.passwordSet,
+        }
+      : a));
+    return ok({ success: true });
+  }
+
+  if (method === 'delete' && adminMatch) {
+    const adminId = Number(adminMatch[1]);
+    store.admins = store.admins.filter((a) => a.adminId !== adminId);
+    return ok({ success: true });
+  }
+
+  if (method === 'post' && path === '/admin/setup-password') {
+    const body = getBody(config);
+    store.admins = store.admins.map((a) => (a.userName === body.userName ? { ...a, passwordSet: true } : a));
+    return ok({ accessToken: 'mock-access-token' });
   }
 
   // --- Team management ---
@@ -281,6 +330,11 @@ export async function handleMockRequest(config) {
 
   // --- Auth ---
   if (method === 'post' && path === '/admin/login') {
+    const body = getBody(config);
+    const admin = store.admins.find((a) => a.userName === body.username);
+    if (admin && !admin.passwordSet) {
+      return { data: { message: '비밀번호를 먼저 설정해주세요.' }, status: 428, statusText: 'Precondition Required' };
+    }
     return ok({ accessToken: 'mock-access-token' });
   }
 

@@ -161,3 +161,9 @@ export const mockTeams = [
   { teamNum: 'H09', phoneNumber: '010-3456-7890' },
   { teamNum: 'M07', phoneNumber: null },
 ];
+
+export const mockAdmins = [
+  { adminId: 1, userName: '한수민', workAreas: ['디자인'], passwordSet: true },
+  { adminId: 2, userName: '김근희', workAreas: ['출력'], passwordSet: true },
+  { adminId: 3, userName: '이신입', workAreas: [], passwordSet: false },
+];
