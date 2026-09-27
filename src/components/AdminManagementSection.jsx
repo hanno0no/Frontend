@@ -100,7 +100,13 @@ function AdminManagementSection() {
     };
 
     const handleDelete = async (admin) => {
-        if (!window.confirm(`${admin.userName} 계정을 삭제하시겠습니까?`)) return;
+        const confirmed = window.confirm(
+            `${admin.userName} 계정을 삭제하시겠습니까?\n\n` +
+            '- 완료/수령/실패 처리된 주문의 담당자 이력은 그대로 유지됩니다.\n' +
+            '- 진행중인 주문은 담당자가 미배정 상태로 바뀝니다.\n' +
+            '- 삭제된 계정은 관리자 목록에서 언제든 재활성화할 수 있습니다.'
+        );
+        if (!confirmed) return;
         try {
             await apiClient.delete(`/admin/admins/${admin.adminId}`);
             fetchAdmins();
@@ -110,10 +116,21 @@ function AdminManagementSection() {
         }
     };
 
+    const handleReactivate = async (admin) => {
+        try {
+            await apiClient.patch(`/admin/admins/${admin.adminId}/reactivate`);
+            fetchAdmins();
+        } catch (err) {
+            console.error('관리자 재활성화 에러:', err);
+            alert(err.response?.data?.message || '관리자 재활성화에 실패했습니다.');
+        }
+    };
+
     if (isLoading) return <div>로딩 중...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
-    const isLastAdmin = admins.length <= 1;
+    const activeAdmins = admins.filter((admin) => !admin.deleted);
+    const isLastAdmin = activeAdmins.length <= 1;
 
     return (
         <div className="admin-management-section">
@@ -198,7 +215,10 @@ function AdminManagementSection() {
                                     )}
                                 </td>
                                 <td>
-                                    {!admin.passwordSet && (
+                                    {admin.deleted && (
+                                        <span className="status-badge status-badge--muted">삭제됨</span>
+                                    )}
+                                    {!admin.deleted && !admin.passwordSet && (
                                         <span className="status-badge status-badge--muted">비밀번호 미설정</span>
                                     )}
                                     {isEditing && isMe && (
@@ -222,7 +242,11 @@ function AdminManagementSection() {
                                 </td>
                                 <td>
                                     <div className="team-row-actions">
-                                        {isEditing ? (
+                                        {admin.deleted ? (
+                                            <button type="button" className="team-action-button" onClick={() => handleReactivate(admin)}>
+                                                재활성화
+                                            </button>
+                                        ) : isEditing ? (
                                             <>
                                                 <button type="button" className="team-action-button" onClick={() => handleSaveEdit(admin.adminId)}>저장</button>
                                                 <button type="button" className="team-action-button" onClick={cancelEdit}>취소</button>
