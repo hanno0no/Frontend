@@ -237,11 +237,12 @@ function AdminPage() {
     };
 
     const handleMaterialChange = async (orderId, newMaterial) => {
+        const confirmed = window.confirm(
+            '재질을 변경하면 기존 주문은 실패 처리되고, 새 재질로 접수완료 상태의 새 주문이 생성됩니다.\n계속하시겠습니까?'
+        );
+        if (!confirmed) return;
         try {
             await apiClient.patch(`/admin/${orderId}/material`, { material: newMaterial });
-            setOrders((prevOrders) => prevOrders.map((order) =>
-                order.orderId === orderId ? { ...order, material: newMaterial } : order
-            ));
         } catch (err) {
             console.error("재질 업데이트 실패:", err);
             alert("재질 업데이트에 실패했습니다.");
